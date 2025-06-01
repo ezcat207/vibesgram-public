@@ -1,0 +1,262 @@
+// Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    // When using mysql or sqlserver, uncomment the @db.Text annotations in model Account
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+// Core NextAuth Models
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String? // @db.Text
+    access_token             String? // @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? // @db.Text
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Extended User model with additional fields while maintaining NextAuth compatibility
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
+    // Additional fields for Vibesgram
+    username  String?  @unique // URL friendly identifier
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relationships
+    artifacts     Artifact[]
+    likes         Like[]
+    comments      Comment[]
+    bookmarks     Bookmark[]
+    notifications Notification[]
+    followedBy    Follow[]       @relation("Followers")
+    following     Follow[]       @relation("Following")
+    conversations Conversation[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// Vibesgram specific models
+model Artifact {
+    id            String    @id
+    title         String
+    description   String?   @db.Text
+    storagePath   String
+    coverImageUrl String?
+    fileSize      Int
+    fileCount     Int
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    publishedAt   DateTime? // When the artifact was published
+
+    // Relationships with Preview - one Artifact can have many Previews
+    previews Preview[]
+
+    // Relationships
+    userId         String
+    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    conversationId String?       @unique // Each artifact is tied to exactly one conversation
+    conversation   Conversation? @relation(fields: [conversationId], references: [id])
+    likes          Like[]
+    comments       Comment[]
+    bookmarks      Bookmark[]
+
+    @@index([userId])
+    @@index([conversationId])
+}
+
+// New Preview model for independent previews - no user, title, or description
+model Preview {
+    id          String   @id
+    storagePath String // Path to preview content
+    fileSize    Int
+    fileCount   Int
+    createdAt   DateTime @default(now())
+    expiresAt   DateTime // When the preview expires
+
+    // Optional reference to an Artifact (can exist without artifact)
+    artifactId String?
+    artifact   Artifact? @relation(fields: [artifactId], references: [id])
+
+    @@index([artifactId])
+}
+
+// Comment model supporting infinite depth replies
+model Comment {
+    id        String   @id @default(cuid())
+    content   String   @db.Text
+    depth     Int      @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relationships
+    userId       String
+    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artifactId   String
+    artifact     Artifact      @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+    parentId     String?
+    parent       Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    replies      Comment[]     @relation("CommentReplies")
+    notification Notification?
+
+    @@index([userId])
+    @@index([artifactId])
+    @@index([parentId])
+}
+
+// Like model with unique constraint per user-artifact pair
+model Like {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    // Relationships
+    userId       String
+    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artifactId   String
+    artifact     Artifact      @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+    notification Notification?
+
+    @@unique([userId, artifactId])
+    @@index([userId])
+    @@index([artifactId])
+}
+
+// Bookmark model (formerly Save) with unique constraint per user-artifact pair
+model Bookmark {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    // Relationships
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artifactId String
+    artifact   Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, artifactId])
+    @@index([userId])
+    @@index([artifactId])
+}
+
+// Follow relationship model
+model Follow {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    // Relationships
+    followerId   String
+    follower     User          @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+    followingId  String
+    following    User          @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+    notification Notification?
+
+    @@unique([followerId, followingId])
+    @@index([followerId])
+    @@index([followingId])
+}
+
+// Notification model supporting different types of notifications
+model Notification {
+    id        String           @id @default(cuid())
+    type      NotificationType
+    content   String           @db.Text
+    read      Boolean          @default(false)
+    createdAt DateTime         @default(now())
+
+    // Relationships
+    userId           String
+    user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+    commentId        String?           @unique
+    comment          Comment?          @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    likeId           String?           @unique
+    like             Like?             @relation(fields: [likeId], references: [id], onDelete: Cascade)
+    followId         String?           @unique
+    follow           Follow?           @relation(fields: [followId], references: [id], onDelete: Cascade)
+    broadcastId      String?
+    broadcastMessage BroadcastMessage? @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([commentId])
+    @@index([likeId])
+    @@index([followId])
+    @@index([broadcastId])
+}
+
+// Broadcast message model for sending notifications to multiple users
+model BroadcastMessage {
+    id            String         @id @default(cuid())
+    title         String
+    content       String         @db.Text
+    level         BroadcastLevel @default(INFO)
+    createdAt     DateTime       @default(now())
+    notifications Notification[]
+}
+
+// Chat conversation model
+model Conversation {
+    id        String   @id @default(cuid())
+    title     String? // Optional title for the conversation
+    messages  Json // Store the entire message array as JSON
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relationships
+    userId   String
+    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    artifact Artifact?
+
+    @@index([userId])
+}
+
+enum NotificationType {
+    COMMENT
+    LIKE
+    FOLLOW
+    SYSTEM
+}
+
+enum BroadcastLevel {
+    INFO
+    WARNING
+    ERROR
+    ANNOUNCEMENT
+}

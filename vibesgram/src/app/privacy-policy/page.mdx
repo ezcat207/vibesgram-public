@@ -1,0 +1,76 @@
+import { MainLayout } from "@/components/layout/main-layout";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
+export const metadata = {
+  title: "Privacy Policy - VibesGram",
+  description: "Privacy Policy for VibesGram - Vibe Coding Platform",
+  alternates: {
+    canonical: "https://vibesgram.com/privacy-policy",
+  },
+};
+
+<MainLayout>
+  <div className="container mx-auto px-4 py-8">
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Privacy Policy</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+    
+    <div className="prose prose-slate max-w-none mt-8">
+# Privacy Policy  
+**Effective Date: April 1, 2025**  
+
+At Vibesgram (https://vibesgram.com), we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains what information we collect and how we use it.
+
+---
+
+## 1. Information We Collect  
+We collect the following personal data when you use our services:  
+- Name  
+- Email address  
+- Payment information  
+
+We also collect non-personal data through cookies and similar technologies to improve user experience and website functionality.
+
+## 2. Use of Information  
+We use your personal data to:  
+- Provide and maintain our services  
+- Process payments  
+- Communicate with you regarding your account or updates  
+- Improve our website and offerings  
+
+## 3. Data Sharing  
+We do not share your personal data with any third parties.
+
+## 4. Cookies  
+We use cookies to analyze traffic and enhance your experience. You can control cookie preferences through your browser settings.
+
+## 5. Children’s Privacy  
+We do not knowingly collect any personal data from children under the age of 13. If you believe a child has provided us with personal information, please contact us immediately.
+
+## 6. Your Rights  
+You may request access, correction, or deletion of your personal data by contacting us at [contact@vibesgram.com](mailto:contact@vibesgram.com).
+
+## 7. Changes to This Policy  
+We may update this Privacy Policy from time to time. If we make significant changes, we will notify you by email.
+
+## 8. Contact Us  
+If you have any questions about this Privacy Policy, please contact us at [contact@vibesgram.com](mailto:contact@vibesgram.com).
+</div>
+  </div>
+</MainLayout>
+
