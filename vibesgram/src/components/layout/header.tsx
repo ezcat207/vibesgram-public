@@ -22,7 +22,8 @@ const title = (
   </span>
 );
 
-const navItems = [{ label: "Join Discord", href: DISCORD_INVITE_URL }];
+const baseNavItems = [{ label: "Join Discord", href: DISCORD_INVITE_URL }];
+// "Submit Idea" could be a nav item or a standalone button. Let's try standalone first.
 
 export function Header() {
   const { data: session } = useSession();
@@ -55,6 +56,10 @@ export function Header() {
             </Link>
           ))}
 
+          <Link href="/submit-idea" passHref>
+            <Button variant="default" size="sm">Submit Idea</Button>
+          </Link>
+
           {/* Auth UI */}
           {session ? (
             <DropdownMenu>
@@ -74,28 +79,30 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {session.user.username && (
-                  <>
-                    <DropdownMenuItem onClick={() => router.push("/u/" + session.user.username)}>
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  My Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/developer")}>
+                  Developer Center
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut({ redirectTo: "/" })}>
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="ghost" onClick={() => signIn("google")}>
-              Sign In
-            </Button>
+            <>
+              <Button variant="ghost" onClick={() => signIn("google")}>
+                Sign In
+              </Button>
+            </>
           )}
         </nav>
 
         {/* Mobile Navigation */}
-        <MobileNav navItems={navItems} />
+        {/* Pass session to MobileNav to conditionally render items like profile/dev center */}
+        <MobileNav navItems={baseNavItems} session={session} />
       </div>
     </header>
   );

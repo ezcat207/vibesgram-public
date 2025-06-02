@@ -61,6 +61,9 @@ model User {
     artifacts     Artifact[]
     likes         Like[]
     conversations Conversation[]
+    projectIdeas  ProjectIdea[] // Ideas submitted by the user
+    pledges       Pledge[]      // Pledges made by the user
+    developerApplications DeveloperApplication[] @relation("DeveloperApplications") // Applications submitted by the user (as a developer)
 }
 
 model VerificationToken {
@@ -144,4 +147,88 @@ model Conversation {
     artifact Artifact?
 
     @@index([userId])
+}
+
+// Add these new models to the end of the file
+
+enum ProjectStatus {
+  CROWDFUNDING // Project is currently seeking funding
+  FUNDED // Project has reached its funding goal
+  IN_PROGRESS // A developer is working on the project
+  COMPLETED // Project has been completed
+  CANCELLED // Project has been cancelled
+}
+
+model ProjectIdea {
+  id                String    @id @default(cuid())
+  title             String
+  description       String    @db.Text
+  expectedFeatures  String[] // List of expected features
+  targetPrice       Int // Target funding amount in cents (1-9 USD)
+  projectType       String // e.g., AI Tool, Website, Mobile App
+  contactInfo       String
+  crowdfundingEndDate DateTime
+  status            ProjectStatus @default(CROWDFUNDING)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pledges           Pledge[]
+  developerApplications DeveloperApplication[]
+  milestones        ProjectMilestone[]
+
+  @@index([userId])
+}
+
+model Pledge {
+  id        String   @id @default(cuid())
+  amount    Int // Amount pledged in cents
+  createdAt DateTime @default(now())
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectIdeaId String
+  projectIdea   ProjectIdea @relation(fields: [projectIdeaId], references: [id], onDelete: Cascade)
+
+  // Stripe payment intent ID for tracking and refunds
+  paymentIntentId String? @unique
+
+  @@unique([userId, projectIdeaId]) // Allow one pledge per user per project
+  @@index([userId])
+  @@index([projectIdeaId])
+}
+
+model DeveloperApplication {
+  id        String   @id @default(cuid())
+  coverLetter String @db.Text
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  developerId   String
+  developer     User      @relation("DeveloperApplications", fields: [developerId], references: [id], onDelete: Cascade)
+  projectIdeaId String
+  projectIdea   ProjectIdea @relation(fields: [projectIdeaId], references: [id], onDelete: Cascade)
+
+  @@unique([developerId, projectIdeaId]) // Allow one application per developer per project
+  @@index([developerId])
+  @@index([projectIdeaId])
+}
+
+model ProjectMilestone {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  dueDate     DateTime?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectIdeaId String
+  projectIdea   ProjectIdea @relation(fields: [projectIdeaId], references: [id], onDelete: Cascade)
+
+  @@index([projectIdeaId])
 }

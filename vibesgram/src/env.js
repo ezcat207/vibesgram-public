@@ -27,6 +27,9 @@ export const env = createEnv({
     SCREENSHOT_SERVICE_URL: z.string().url(),
     UPSTASH_REDIS_REST_URL: z.string(),
     UPSTASH_REDIS_REST_TOKEN: z.string().default("dummy_token"),
+    // Stripe
+    STRIPE_SECRET_KEY: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
 
   /**
@@ -37,6 +40,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_DOMAIN: z.string().default("vibesgram.app"),
     NEXT_PUBLIC_ASSETS_URL: z.string().default("https://assets.vibesgram.com"),
+    NEXT_PUBLIC_STRIPE_PUBLIC_KEY: z.string().min(1),
   },
 
   /**
@@ -61,6 +65,10 @@ export const env = createEnv({
     SCREENSHOT_SERVICE_URL: process.env.SCREENSHOT_SERVICE_URL,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    // Stripe
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    NEXT_PUBLIC_STRIPE_PUBLIC_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

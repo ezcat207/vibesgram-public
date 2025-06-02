@@ -19,10 +19,11 @@ interface MobileNavProps {
     newWindow?: boolean;
   }[];
   extraComponents?: React.ReactNode;
+  session: ReturnType<typeof useSession>['data']; // Accept session as a prop
 }
 
-export function MobileNav({ navItems, extraComponents }: MobileNavProps) {
-  const { data: session } = useSession();
+export function MobileNav({ navItems, extraComponents, session }: MobileNavProps) {
+  // const { data: session } = useSession(); // Session is now passed as a prop
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -50,14 +51,32 @@ export function MobileNav({ navItems, extraComponents }: MobileNavProps) {
             </Link>
           ))}
 
-          {session?.user?.username && (
-            <Link
-              key="profile"
-              href={"/u/" + session?.user?.username}
-              className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
-            >
-              Profile
-            </Link>
+          {/* Submit Idea Button/Link */}
+          <Link
+            href="/submit-idea"
+            className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+          >
+            <Button variant="outline" className="w-full justify-start">Submit Idea</Button>
+          </Link>
+
+          <hr className="my-2"/>
+
+          {session?.user && (
+            <>
+              <Link
+                href="/profile"
+                className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+              >
+                My Profile
+              </Link>
+              <Link
+                href="/developer"
+                className="text-muted-foreground hover:text-foreground text-lg font-medium transition-colors"
+              >
+                Developer Center
+              </Link>
+              <hr className="my-2"/>
+            </>
           )}
 
           {extraComponents}
@@ -66,8 +85,8 @@ export function MobileNav({ navItems, extraComponents }: MobileNavProps) {
           {session ? (
             <Button
               variant="ghost"
-              onClick={() => signOut()}
-              className="w-full justify-start"
+              onClick={() => signOut({ redirectTo: "/" })}
+              className="w-full justify-start text-lg font-medium"
             >
               Sign Out
             </Button>
@@ -75,7 +94,7 @@ export function MobileNav({ navItems, extraComponents }: MobileNavProps) {
             <Button
               variant="ghost"
               onClick={() => signIn("google")}
-              className="w-full justify-start"
+              className="w-full justify-start text-lg font-medium"
             >
               Sign In
             </Button>

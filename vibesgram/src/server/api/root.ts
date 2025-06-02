@@ -1,5 +1,10 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { artifactRouter } from "./routers/artifact/router";
+import { projectIdeaRouter } from "./routers/projectIdea"; // Assuming the file is directly in routers
+import { stripeRouter } from "./routers/stripe";
+import { developerApplicationRouter } from "./routers/developerApplication";
+import { projectMilestoneRouter } from "./routers/projectMilestone";
+import { pledgeRouter } from "./routers/pledge";
 import { conversationRouter } from "./routers/conversation/router";
 import { userRouter } from "./routers/user/router";
 import { utilsRouter } from "./routers/utils/router";
@@ -14,6 +19,11 @@ export const appRouter = createTRPCRouter({
   conversation: conversationRouter,
   artifact: artifactRouter,
   utils: utilsRouter,
+  projectIdea: projectIdeaRouter,
+  stripe: stripeRouter,
+  developerApplication: developerApplicationRouter,
+  projectMilestone: projectMilestoneRouter,
+  pledge: pledgeRouter,
 });
 
 // export type definition of API
