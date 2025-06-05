@@ -2,146 +2,169 @@
 // Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // When using mysql or sqlserver, uncomment the @db.Text annotations in model Account
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // When using mysql or sqlserver, uncomment the @db.Text annotations in model Account
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 // Core NextAuth Models
 model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? // @db.Text
+  access_token             String? // @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? // @db.Text
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Extended User model with additional fields while maintaining NextAuth compatibility
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 
-    // Additional fields for Vibesgram
-    username  String?  @unique // URL friendly identifier
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  // Additional fields for Vibesgram
+  username  String?  @unique // URL friendly identifier
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    // Relationships
-    artifacts     Artifact[]
-    likes         Like[]
-    conversations Conversation[]
+  // Relationships
+  artifacts     Artifact[]
+  likes         Like[]
+  conversations Conversation[]
+  donations     Donation[] // Added relation to Donation model
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 // Vibesgram specific models
 model Artifact {
-    id             String    @id
-    title          String
-    description    String    @db.Text
-    coverImagePath String
-    fileSize       Int
-    fileCount      Int
-    likeCount      Int       @default(0)
-    createdAt      DateTime  @default(now())
-    updatedAt      DateTime  @updatedAt
-    deletedAt      DateTime?
+  id             String    @id
+  title          String
+  description    String    @db.Text
+  coverImagePath String
+  fileSize       Int
+  fileCount      Int
+  likeCount      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
 
-    // Relationships with Preview - one Artifact can have many Previews
-    previews Preview[]
+  // Relationships with Preview - one Artifact can have many Previews
+  previews Preview[]
 
-    // Relationships
-    userId         String
-    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    conversationId String?       @unique // Each artifact is tied to exactly one conversation
-    conversation   Conversation? @relation(fields: [conversationId], references: [id])
-    likes          Like[]
+  // Relationships
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String?       @unique // Each artifact is tied to exactly one conversation
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  likes          Like[]
+  donations      Donation[] // Added relation to Donation model
 
-    @@index([userId])
-    @@index([conversationId])
+  @@index([userId])
+  @@index([conversationId])
 }
 
 // New Preview model for independent previews - no user, title, or description
 model Preview {
-    id        String   @id
-    fileSize  Int
-    fileCount Int
-    createdAt DateTime @default(now())
-    expiresAt DateTime // When the preview expires
+  id        String   @id
+  fileSize  Int
+  fileCount Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime // When the preview expires
 
-    // Optional reference to an Artifact (can exist without artifact)
-    artifactId String?
-    artifact   Artifact? @relation(fields: [artifactId], references: [id])
+  // Optional reference to an Artifact (can exist without artifact)
+  artifactId String?
+  artifact   Artifact? @relation(fields: [artifactId], references: [id])
 
-    @@index([artifactId])
+  @@index([artifactId])
 }
 
 // Like model with unique constraint per user-artifact pair
 model Like {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    cancelled Boolean  @default(false)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  cancelled Boolean  @default(false)
 
-    // Relationships
-    userId     String
-    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    artifactId String
-    artifact   Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+  // Relationships
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artifactId String
+  artifact   Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
 
-    @@unique([userId, artifactId])
-    @@index([userId])
-    @@index([artifactId])
+  @@unique([userId, artifactId])
+  @@index([userId])
+  @@index([artifactId])
 }
 
 // Chat conversation model
 model Conversation {
-    id        String   @id @default(cuid())
-    title     String? // Optional title for the conversation
-    messages  Json // Store the entire message array as JSON
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  title     String? // Optional title for the conversation
+  messages  Json // Store the entire message array as JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    // Relationships
-    userId   String
-    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    artifact Artifact?
+  // Relationships
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artifact Artifact?
 
-    @@index([userId])
+  @@index([userId])
+}
+
+model Donation {
+  id                    String @id @default(cuid())
+  amount                Int // Amount in cents to avoid floating point issues
+  currency              String
+  status                String // e.g., "pending", "succeeded", "failed"
+  stripePaymentIntentId String @unique // ID from Stripe for the payment intent
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  artifactId String
+  artifact   Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([artifactId])
+  @@index([stripePaymentIntentId])
 }

@@ -22,10 +22,26 @@ import { toast } from "@/hooks/use-toast";
 import { getArtifactUrl } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { ExternalLink, Heart, Link2, Share, Trash2 } from "lucide-react";
+import { Coins, ExternalLink, Heart, Link2, Share, Trash2 } from "lucide-react"; // Added Coins
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { loadStripe, Stripe } from "@stripe/stripe-js"; // New
+import { env } from "@/env.js"; // New
+
+// For the dialog/modal (assuming Shadcn UI components are used)
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button"; // Already imported but ensure it's available if not
+import { Label } from "@/components/ui/label"; // If needed for the input
 
 interface ArtifactActionsProps {
     artifactId: string;
@@ -40,6 +56,53 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
     const { likeCount, isLoading: isLikeLoading, handleLike } = useLike(artifactId, initialLikeCount);
     const isOwner = session?.user.id === userId;
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Stripe.js initialization
+    let stripePromise: Promise<Stripe | null> | null = null;
+    if (typeof window !== "undefined") { // Ensure it runs only on client-side
+        stripePromise = loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+    }
+
+    // State for dialog and amount
+    const [showDonateDialog, setShowDonateDialog] = useState(false);
+    const [donationAmount, setDonationAmount] = useState<string>("5"); // Default amount
+
+    const createCheckoutSessionMutation = api.donation.createCheckoutSession.useMutation({
+        onSuccess: async (data) => {
+            const stripe = await stripePromise;
+            if (stripe && data.url) {
+                // Using data.url which is the direct checkout URL
+                window.location.href = data.url;
+            } else if (data.sessionId && stripe) {
+                // Fallback or alternative: Redirect to Stripe Checkout page by session ID
+                const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+                if (error) {
+                    toast({
+                        title: "Error redirecting to Stripe",
+                        description: error.message,
+                        variant: "destructive",
+                    });
+                }
+            } else {
+                 toast({
+                    title: "Error",
+                    description: "Could not initiate donation process.",
+                    variant: "destructive",
+                });
+            }
+        },
+        onError: (error) => {
+            toast({
+                title: "Donation Error",
+                description: error.message || "Could not process donation.",
+                variant: "destructive",
+            });
+        },
+        onSettled: () => {
+            // Potentially close dialog or reset loading state here
+            setShowDonateDialog(false);
+        }
+    });
 
     const deleteArtifactMutation = api.artifact.deleteArtifact.useMutation({
         onSuccess: () => {
@@ -154,6 +217,69 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+
+        {/* Donate Button and Dialog */}
+        <Dialog open={showDonateDialog} onOpenChange={setShowDonateDialog}>
+            <DialogTrigger asChild>
+                <ActionButton
+                    icon={Coins} // Or your chosen icon
+                    label="Donate"
+                    onClick={() => {
+                        if (!session) { // Check if user is logged in
+                            toast({ title: "Authentication Required", description: "Please log in to donate."});
+                            // Optionally trigger signIn() here
+                            return;
+                        }
+                        setShowDonateDialog(true);
+                    }}
+                />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Make a Donation</DialogTitle>
+                    <DialogDescription>
+                        Support this artifact by making a donation. Minimum amount is $1.00.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="amount" className="text-right">
+                            Amount (USD)
+                        </Label>
+                        <Input
+                            id="amount"
+                            type="number"
+                            value={donationAmount}
+                            onChange={(e) => setDonationAmount(e.target.value)}
+                            className="col-span-3"
+                            min="1"
+                            step="1" // Or "0.01" if you allow cents directly in input
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button
+                        type="submit"
+                        onClick={async () => {
+                            const amountNumber = parseFloat(donationAmount);
+                            if (isNaN(amountNumber) || amountNumber < 1) {
+                                toast({
+                                    title: "Invalid Amount",
+                                    description: "Please enter a valid amount of at least $1.00.",
+                                    variant: "destructive",
+                                });
+                                return;
+                            }
+                            createCheckoutSessionMutation.mutate({ artifactId, amount: amountNumber });
+                        }}
+                        disabled={createCheckoutSessionMutation.isLoading}
+                    >
+                        {createCheckoutSessionMutation.isLoading ? "Processing..." : "Proceed to Payment"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
                 <ActionButton
                     icon={ExternalLink}
                     label="Open"
