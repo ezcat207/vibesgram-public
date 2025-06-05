@@ -18,12 +18,19 @@
 			"preview_bucket_name": "vibesgram-dev"
 		}
 	],
+	// "routes": [
+	// 	"*.vibesgram.org/*" // test domain
+	// ],
+	// "vars": {
+	// 	"ASSETS_URL": "https://assets.vibesgram.net", // test asset domain
+	// 	"APP_DOMAIN": "localhost:3000" // test domain
+	// }
 	"routes": [
-		"*.vibesgram.org/*" // test domain
+		"*.binbody.xyz/*"
 	],
 	"vars": {
-		"ASSETS_URL": "https://assets.vibesgram.net", // test asset domain
-		"APP_DOMAIN": "localhost:3000" // test domain
+		"ASSETS_URL": "https://assets.binbody.com",
+		"APP_DOMAIN": "binbody.com"
 	}
 	/**
 	 * Smart Placement

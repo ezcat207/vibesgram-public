@@ -11,20 +11,35 @@
 		"enabled": true,
 		"head_sampling_rate": 1
 	},
+	// "r2_buckets": [
+	// 	{
+	// 		"binding": "BUCKET",
+	// 		"bucket_name": "vibesgram",
+	// 		"preview_bucket_name": "vibesgram"
+	// 	}
+	// ],
 	"r2_buckets": [
 		{
 			"binding": "BUCKET",
-			"bucket_name": "vibesgram",
-			"preview_bucket_name": "vibesgram"
+			"bucket_name": "vibesgram-dev",
+			"preview_bucket_name": "vibesgram-dev"
 		}
 	],
 	"routes": [
-		"*.vibesgram.app/*"
+		"*.binbody.space/*"
 	],
 	"vars": {
-		"ASSETS_URL": "https://assets.vibesgram.com",
-		"APP_DOMAIN": "vibesgram.com"
+		"ASSETS_URL": "https://assets.binbody.com",
+		"APP_DOMAIN": "binbody.com"
 	}
+	// "routes": [
+	// 	"*.vibesgram.app/*"
+	// ],
+	// "vars": {
+	// 	"ASSETS_URL": "https://assets.vibesgram.com",
+	// 	"APP_DOMAIN": "vibesgram.com"
+	// }
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

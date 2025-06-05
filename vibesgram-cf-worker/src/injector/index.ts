@@ -67,8 +67,8 @@ export function injectVibesgramComponent(html: string, config: InjectionConfig =
     // Initialize component
     initialize(shadow, {
       artifactId: ${config.artifactId ? `"${config.artifactId}"` : 'null'},
-      assetsUrl: ${config.assetsUrl ? `"${config.assetsUrl}"` : '"https://assets.vibesgram.com"'},
-      appDomain: ${config.appDomain ? `"${config.appDomain}"` : '"vibesgram.com"'},
+      assetsUrl: ${config.assetsUrl ? `"${config.assetsUrl}"` : '"https://assets.binbody.com"'},
+      appDomain: ${config.appDomain ? `"${config.appDomain}"` : '"binbody.com"'},
       type: "${config.type}"
     });
   })();
