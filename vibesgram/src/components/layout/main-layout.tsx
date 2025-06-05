@@ -16,10 +16,10 @@ interface MainLayoutProps {
 }
 
 const defaultFooterContent = {
-  title: "Vibesgram",
-  description: "Vibesgram is a vibe coding digital gallery.",
+  title: "Binbody",
+  description: "Binbody: Crowdfunding the future of Vibe Coding. High signal, low noise.",
   contact: {
-    email: "contact@vibesgram.com",
+    email: "contact@binbody.com",
   },
   sections: [
     {
@@ -27,7 +27,7 @@ const defaultFooterContent = {
       links: [
         { label: "Privacy Policy", href: "/privacy-policy" },
         { label: "Terms of Service", href: "/tos" },
-        { label: "Contact Us", href: "mailto:contact@vibesgram.com" },
+        { label: "Contact Us", href: "mailto:contact@binbody.com" },
         { label: "Pricing", href: "/#" },
       ],
     },
