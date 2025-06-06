@@ -196,7 +196,7 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
 
       // Call API to create preview
       createPreviewMutation.mutate({ files: previewFiles });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Failed to create preview",
         description: "Error processing files",
