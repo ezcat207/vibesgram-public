@@ -167,6 +167,9 @@ importers:
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
+      stripe:
+        specifier: ^18.2.1
+        version: 18.2.1(@types/node@20.17.24)
       superjson:
         specifier: ^2.2.1
         version: 2.2.2
@@ -4172,6 +4175,10 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
+
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -4330,6 +4337,7 @@ packages:
 
   rspack-resolver@1.2.2:
     resolution: {integrity: sha512-Fwc19jMBA3g+fxDJH2B4WxwZjE0VaaOL7OX/A4Wn5Zv7bOD/vyPZhzXfaO73Xc2GAlfi96g5fGUa378WbIGfFw==}
+    deprecated: Please migrate to the brand new `@rspack/resolver` or `unrs-resolver` instead
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -4502,6 +4510,15 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  stripe@18.2.1:
+    resolution: {integrity: sha512-GwB1B7WSwEBzW4dilgyJruUYhbGMscrwuyHsPUmSRKrGHZ5poSh2oU9XKdii5BFVJzXHn35geRvGJ6R8bYcp8w==}
+    engines: {node: '>=12.*'}
+    peerDependencies:
+      '@types/node': '>=12.x.x'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strnum@1.1.2:
     resolution: {integrity: sha512-vrN+B7DBIoTTZjnPNewwhx6cBA/H+IS7rfW68n7XxC1y7uoiGQBxaKzqucGUgavX15dJgiGztLJ8vxuEzwqBdA==}
@@ -7958,7 +7975,7 @@ snapshots:
       '@typescript-eslint/parser': 8.27.0(eslint@8.57.1)(typescript@5.8.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.4(eslint@8.57.1)
@@ -7978,7 +7995,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.0
@@ -7993,14 +8010,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.27.0(eslint@8.57.1)(typescript@5.8.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -8015,7 +8032,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.27.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -9353,6 +9370,10 @@ snapshots:
 
   punycode@2.3.1: {}
 
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
   queue-microtask@1.2.3: {}
 
   react-dom@18.3.1(react@18.3.1):
@@ -9819,6 +9840,12 @@ snapshots:
   strip-bom@3.0.0: {}
 
   strip-json-comments@3.1.1: {}
+
+  stripe@18.2.1(@types/node@20.17.24):
+    dependencies:
+      qs: 6.14.0
+    optionalDependencies:
+      '@types/node': 20.17.24
 
   strnum@1.1.2: {}
 
