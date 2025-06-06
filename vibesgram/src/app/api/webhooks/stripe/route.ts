@@ -10,19 +10,24 @@ const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = headers().get("stripe-signature") as string;
+  const signatureHeader = headers().get("stripe-signature");
+
+  if (!signatureHeader) {
+    console.error("Webhook Error: Missing stripe-signature header.");
+    return NextResponse.json({ error: "Webhook Error: Missing stripe-signature header." }, { status: 400 });
+  }
 
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
       body,
-      signature,
+      signatureHeader, // Use the checked header
       env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error";
-    console.error(`Webhook signature verification failed: ${errorMessage}`);
+    const errorMessage = err instanceof Error ? err.message : "Unknown error during webhook construction.";
+    console.error(`Webhook signature verification failed: ${errorMessage}`, err); // Log the full error object too
     return NextResponse.json({ error: `Webhook Error: ${errorMessage}` }, { status: 400 });
   }
 
@@ -32,13 +37,13 @@ export async function POST(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       if (session.payment_status === "paid") {
-        const { userId, artifactId } = session.metadata as { userId: string; artifactId: string };
+        const { userId, artifactId } = session.metadata || {}; // Add default empty object for metadata
         const amountTotal = session.amount_total; // Amount in cents
         const currency = session.currency;
 
         if (!userId || !artifactId || amountTotal === null || !currency) {
-          console.error("Webhook Error: Missing metadata or amount_total/currency from session.", session.id);
-          return NextResponse.json({ error: "Missing metadata or amount." }, { status: 400 });
+          console.error("Webhook Error: Missing metadata (userId, artifactId) or amount_total/currency from session.", session.id);
+          return NextResponse.json({ error: "Missing critical information in session data." }, { status: 400 });
         }
 
         try {
@@ -47,15 +52,17 @@ export async function POST(req: NextRequest) {
               amount: amountTotal, // Store in cents
               currency: currency.toUpperCase(),
               status: "succeeded",
-              stripePaymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : '', // Ensure it's a string
+              // Ensure payment_intent is a string, can be null if not expanded or not applicable
+              stripePaymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : `pi_unknown_${session.id}`,
               userId,
               artifactId,
             },
           });
           console.log(`Donation successful for user ${userId} to artifact ${artifactId}, amount: ${amountTotal} ${currency}`);
         } catch (dbError) {
-          console.error("Webhook DB Error:", dbError);
-          return NextResponse.json({ error: "Database error while creating donation." }, { status: 500 });
+          const dbErrorMessage = dbError instanceof Error ? dbError.message : "Unknown database error.";
+          console.error("Webhook DB Error:", dbErrorMessage, dbError);
+          return NextResponse.json({ error: `Database error while creating donation: ${dbErrorMessage}` }, { status: 500 });
         }
       }
       break;
