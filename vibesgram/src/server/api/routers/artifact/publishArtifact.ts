@@ -86,6 +86,7 @@ export const publishArtifact = protectedProcedure
                     fileSize: preview.fileSize,
                     fileCount: preview.fileCount,
                     coverImagePath, // Add the cover image path
+                    crowdfundingGoal: input.crowdfundingGoal, // 众筹目标金额
                 },
             });
 

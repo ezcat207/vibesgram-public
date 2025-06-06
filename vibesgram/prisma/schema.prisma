@@ -84,6 +84,9 @@ model Artifact {
     updatedAt      DateTime  @updatedAt
     deletedAt      DateTime?
 
+    crowdfundingGoal   Int?      // 众筹目标金额（美元，可选）
+    crowdfundingRaised Int       @default(0) // 已筹金额（美元）
+
     // Relationships with Preview - one Artifact can have many Previews
     previews Preview[]
 

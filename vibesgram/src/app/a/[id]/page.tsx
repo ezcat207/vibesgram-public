@@ -93,6 +93,21 @@ export default async function ArtifactPage({ params }: { params: Promise<{ id: s
                                     </p>
                                 </div>
                             )}
+
+                            {/* 众筹进度展示 */}
+                            {artifact.crowdfundingGoal && artifact.crowdfundingGoal > 0 && (
+                                <div className="mt-8">
+                                    <div className="mb-2 text-sm text-muted-foreground">
+                                        Crowdfunding Progress: ${artifact.crowdfundingRaised} / ${artifact.crowdfundingGoal} USD
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
+                                        <div
+                                            className="bg-green-500 h-3 rounded-full transition-all"
+                                            style={{ width: `${Math.min(100, Math.round((artifact.crowdfundingRaised / artifact.crowdfundingGoal) * 100))}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 

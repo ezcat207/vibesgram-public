@@ -248,6 +248,28 @@ export function PublishForm({ previewId }: PublishFormProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="crowdfundingGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>众筹目标金额（美元，可选）</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="如 100"
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        />
+                      </FormControl>
+                      <FormDescription>填写后，项目将显示众筹进度和目标。</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">
