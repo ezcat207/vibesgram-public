@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
       signature,
       env.STRIPE_WEBHOOK_SECRET
     );
-  } catch (err) {
+  } catch (err: any) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     console.error(`Webhook signature verification failed: ${errorMessage}`);
-    return NextResponse.json({ error: `Webhook Error: ${errorMessage}` }, { status: 400 });
+    return NextResponse.json({ error: `Webhook Error: ${errorMessage as string}` }, { status: 400 });
   }
 
   // Handle the event
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       if (session.payment_status === "paid") {
-        const { userId, artifactId } = session.metadata as { userId: string; artifactId: string };
+        const { userId, artifactId } = session.metadata;
         const amountTotal = session.amount_total; // Amount in cents
         const currency = session.currency;
 
@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
           });
           console.log(`Donation successful for user ${userId} to artifact ${artifactId}, amount: ${amountTotal} ${currency}`);
         } catch (dbError) {
-          console.error("Webhook DB Error:", dbError);
-          return NextResponse.json({ error: "Database error while creating donation." }, { status: 500 });
+          console.error("Webhook DB Error:", dbError as string);
+          return NextResponse.json({ error: "Database error while creating donation." as string }, { status: 500 });
         }
       }
       break;
