@@ -287,7 +287,7 @@ export function PublishForm({ previewId }: PublishFormProps) {
                           description: form.watch("description"),
                           user: {
                             id: session?.user?.id ?? "",
-                            name: session?.user?.name ?? "Vibe Coder",
+                            name: session?.user?.name ?? "Binbody Coder",
                             image: session?.user?.image ?? "",
                             username: session?.user?.username ?? "",
                           },

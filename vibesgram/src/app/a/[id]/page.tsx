@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const artifact = await api.artifact.getArtifactById({ artifactId: id });
 
     return {
-        title: `${artifact.title} - Vibesgram, vibe coder's gallery`,
+        title: `${artifact.title} - Binbody, vibe coder's gallery`,
         description: artifact.description?.slice(0, 155) || "Deploy your vibe code and get a shareable link, free no signup!",
         openGraph: {
-            title: `${artifact.title} - Vibesgram, vibe coder's gallery`,
+            title: `${artifact.title} - Binbody, vibe coder's gallery`,
             description: artifact.description?.slice(0, 155) || "Deploy your vibe code and get a shareable link, free no signup!",
             ...(artifact.coverImagePath && {
                 images: [{ url: getCoverImageUrl(artifact.coverImagePath) }],
