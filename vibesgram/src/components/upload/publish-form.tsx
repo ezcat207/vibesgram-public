@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch"; // Added Switch import
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MAX_COVER_IMAGE_SIZE_KB } from "@/lib/const";
@@ -56,6 +57,8 @@ export function PublishForm({ previewId }: PublishFormProps) {
         data: "",
         contentType: "",
       },
+      crowdfundingEnabled: false, // Added default value
+      fundingGoal: undefined, // Added default value
     },
   });
 
@@ -155,9 +158,16 @@ export function PublishForm({ previewId }: PublishFormProps) {
       await signIn("google");
       return;
     }
-
-    publishArtifactMutation.mutate(data);
+    // Ensure fundingGoal is undefined if crowdfunding is not enabled
+    // The Zod schema on the backend also handles this, but good for client consistency
+    const submissionData = {
+      ...data,
+      fundingGoal: data.crowdfundingEnabled ? data.fundingGoal : undefined,
+    };
+    publishArtifactMutation.mutate(submissionData);
   };
+
+  const watchCrowdfundingEnabled = form.watch("crowdfundingEnabled");
 
   return (
     <Card>
@@ -170,7 +180,7 @@ export function PublishForm({ previewId }: PublishFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-4">
+              <div className="space-y-6"> {/* Increased space-y for new fields */}
                 <FormField
                   control={form.control}
                   name="title"
@@ -248,6 +258,60 @@ export function PublishForm({ previewId }: PublishFormProps) {
                     </FormItem>
                   )}
                 />
+
+                {/* Crowdfunding Fields Start */}
+                <FormField
+                  control={form.control}
+                  name="crowdfundingEnabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Enable Crowdfunding
+                        </FormLabel>
+                        <FormDescription>
+                          Allow others to fund this artifact.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {watchCrowdfundingEnabled && (
+                  <FormField
+                    control={form.control}
+                    name="fundingGoal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Funding Goal ($)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="e.g., 100"
+                            min="1"
+                            step="0.01" // Allow cents
+                            {...field}
+                            // Ensure value is number or undefined for the Zod schema
+                            onChange={(e) => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          The target amount you want to raise.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {/* Crowdfunding Fields End */}
+
               </div>
 
               <div className="space-y-4">
@@ -275,6 +339,9 @@ export function PublishForm({ previewId }: PublishFormProps) {
                           fileSize: 0,
                           fileCount: 0,
                           conversationId: null,
+                          // For preview card, crowdfunding details might not be directly shown
+                          // or could be shown based on watched form values.
+                          // For simplicity, not adding them to card preview here.
                         }}
                         isPreview
                         coverImageOverrideUrl={previewImage}

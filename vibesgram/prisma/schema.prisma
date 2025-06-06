@@ -61,6 +61,7 @@ model User {
     artifacts     Artifact[]
     likes         Like[]
     conversations Conversation[]
+    donations     Donation[] // Relation to Donations
 }
 
 model VerificationToken {
@@ -93,6 +94,12 @@ model Artifact {
     conversationId String?       @unique // Each artifact is tied to exactly one conversation
     conversation   Conversation? @relation(fields: [conversationId], references: [id])
     likes          Like[]
+    donations      Donation[] // Relation to Donations
+
+    // Crowdfunding fields
+    crowdfundingEnabled Boolean @default(false)
+    fundingGoal         Decimal?
+    currentFunding      Decimal @default(0)
 
     @@index([userId])
     @@index([conversationId])
@@ -144,4 +151,24 @@ model Conversation {
     artifact Artifact?
 
     @@index([userId])
+}
+
+// Donation model
+model Donation {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    amount          Decimal
+    stripeSessionId String   @unique
+    status          String // e.g., "pending", "succeeded", "failed"
+
+    // Relationships
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Contributor
+    artifactId String
+    artifact   Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([artifactId])
 }

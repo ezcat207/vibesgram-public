@@ -86,6 +86,10 @@ export const publishArtifact = protectedProcedure
                     fileSize: preview.fileSize,
                     fileCount: preview.fileCount,
                     coverImagePath, // Add the cover image path
+                    // Crowdfunding fields
+                    crowdfundingEnabled: input.crowdfundingEnabled ?? false,
+                    fundingGoal: input.crowdfundingEnabled ? input.fundingGoal : undefined,
+                    currentFunding: 0, // Initialize currentFunding
                 },
             });
 

@@ -10,6 +10,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
+import { ArtifactCrowdfundingDetails } from "@/components/artifact/artifact-crowdfunding-details"; // Import new component
 import { getArtifactUrl, getCoverImageUrl } from "@/lib/paths";
 import { api } from "@/trpc/server";
 import Link from "next/link";
@@ -93,6 +94,10 @@ export default async function ArtifactPage({ params }: { params: Promise<{ id: s
                                     </p>
                                 </div>
                             )}
+
+                            {/* Add Crowdfunding Details Component */}
+                            <ArtifactCrowdfundingDetails artifact={artifact} />
+
                         </CardContent>
                     </Card>
 
