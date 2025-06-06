@@ -5,7 +5,7 @@ import { db } from "@/server/db";
 
 // 你的 Stripe Secret Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2022-11-15",
+  apiVersion: "2025-05-28.basil",
 });
 
 export const config = {
