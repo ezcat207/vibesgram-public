@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { RouterOutput } from "../../types";
+import type { z } from "zod";
+import type { RouterOutput } from "../../types";
 
 export type PaginatedArtifacts = RouterOutput["artifact"]["getArtifacts"];
 export type ArtifactItem = RouterOutput["artifact"]["getArtifacts"]["items"][number];

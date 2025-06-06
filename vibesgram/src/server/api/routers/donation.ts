@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
 import { env } from "@/env"; // Assuming you have an env loader
@@ -77,7 +77,7 @@ export const donationRouter = createTRPCRouter({
         console.error("Stripe API Error:", error);
         let message = "Could not create Stripe checkout session.";
         if (error instanceof Stripe.errors.StripeError) {
-            message = error.message;
+            message = (error as Stripe.StripeError).message;
         }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
