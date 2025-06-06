@@ -41,11 +41,11 @@ export function FileUploader() {
 
       <TabsContent value="scratch" className="text-center space-y-6 py-8">
         <div className="space-y-3">
-          <h3 className="text-xl font-semibold">Vibesgram Agent!</h3>
+          <h3 className="text-xl font-semibold">Binbody Agent!</h3>
           <div className="max-w-[500px] mx-auto">
             <img
-              src="/sample/vibesgram-agent.png"
-              alt="Vibesgram AI Agent Preview"
+              src="/sample/binbody-agent.png"
+              alt="Binbody AI Agent Preview"
               className="w-full h-auto rounded-lg mb-4 shadow-lg"
             />
             <p className="text-muted-foreground">
@@ -73,7 +73,7 @@ export function FileUploader() {
               height={20}
               className="shrink-0"
             />
-            <span>Discuss and shape the future of Vibesgram</span>
+            <span>Discuss and shape the future of Binbody</span>
           </Link>
         </Button>
       </TabsContent>

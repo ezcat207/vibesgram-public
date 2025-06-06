@@ -48,7 +48,7 @@ export default async function RootLayout({
         <SessionProvider>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </SessionProvider>
-        <GoogleAnalytics id="G-84MKTCPGTV" />
+        <GoogleAnalytics id="G-RB1K1KDT96" />
         <Toaster />
       </body>
     </html>

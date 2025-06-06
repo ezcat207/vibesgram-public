@@ -31,19 +31,19 @@ export const wrapHtmlContent = (htmlContent: string): string => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Share Your Vibe Coding with the World - A creation hosted on Vibesgram, the digital gallery for vibe coders.">
-  <meta name="keywords" content="vibesgram, coding, vibe, html, web, creative coding">
-  <meta property="og:title" content="Vibesgram Creation">
+  <meta name="description" content="Share Your Vibe Coding with the World - A creation hosted on Binbody, the digital gallery for vibe coders.">
+  <meta name="keywords" content="binbody, coding, vibe, html, web, creative coding">
+  <meta property="og:title" content="Binbody Creation">
   <meta property="og:description" content="Share Your Vibe Coding with the World">
   <meta property="og:type" content="website">
-  <title>Vibesgram Creation | Share Your Vibe Coding</title>
+  <title>Binbody Creation | Share Your Vibe Coding</title>
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       margin: 0;
       padding: 0;
     }
-    .vibesgram-footer {
+    .binbody-footer {
       position: fixed;
       bottom: 0;
       left: 0;
@@ -61,17 +61,17 @@ export const wrapHtmlContent = (htmlContent: string): string => {
       z-index: 1000;
       box-shadow: 0 -4px 20px rgba(185,103,255,0.3);
     }
-    .vibesgram-footer a {
+    .binbody-footer a {
       color: #fffb96;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
     }
-    .vibesgram-footer a:hover {
+    .binbody-footer a:hover {
       color: white;
       text-shadow: 0 0 8px rgba(255,251,150,0.8);
     }
-    .vibesgram-footer .divider {
+    .binbody-footer .divider {
       display: inline-block;
       width: 4px;
       height: 4px;
@@ -80,10 +80,10 @@ export const wrapHtmlContent = (htmlContent: string): string => {
       margin: 0 4px;
     }
     @media (prefers-color-scheme: dark) {
-      .vibesgram-footer {
+      .binbody-footer {
         background: linear-gradient(90deg, rgba(185,103,255,0.9) 0%, rgba(1,205,254,0.9) 100%);
       }
-      .vibesgram-footer a {
+      .binbody-footer a {
         color: #fffb96;
       }
     }
@@ -91,9 +91,9 @@ export const wrapHtmlContent = (htmlContent: string): string => {
 </head>
 <body>
 ${htmlContent}
-<div class="vibesgram-footer">
+<div class="binbody-footer">
   <span>Created on</span>
-  <a href="https://vibesgram.com" target="_blank" rel="noopener noreferrer">Vibesgram</a>
+  <a href="https://binbody.com" target="_blank" rel="noopener noreferrer">Binbody</a>
   <span class="divider"></span>
   <span>Vibe coder's digital gallery</span>
 </div>

@@ -1,4 +1,4 @@
-import { COMPONENT_HTML, COMPONENT_JS, COMPONENT_STYLE } from './vibesgram-component';
+import { COMPONENT_HTML, COMPONENT_JS, COMPONENT_STYLE } from './binbody-component';
 
 export interface InjectionConfig {
 	position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
@@ -35,23 +35,23 @@ function getPositionStyles(config: InjectionConfig = { type: 'published' }): str
 }
 
 /**
- * Inject the Vibesgram component into HTML content
+ * Inject the Binbody component into HTML content
  */
-export function injectVibesgramComponent(html: string, config: InjectionConfig = { type: 'published' }): string {
+export function injectBinbodyComponent(html: string, config: InjectionConfig = { type: 'published' }): string {
 	// Only inject if the HTML content contains a body tag
 	if (!html.includes('</body>')) {
 		return html;
 	}
 
 	const container = `
-<div id="vibesgram-container" style="${getPositionStyles(config)}"></div>
+<div id="binbody-container" style="${getPositionStyles(config)}"></div>
 <script>
   (function() {
     // Define component functions
     ${COMPONENT_JS}
 
     // Create container and shadow root
-    const container = document.getElementById('vibesgram-container');
+    const container = document.getElementById('binbody-container');
     const shadow = container.attachShadow({ mode: 'open' });
     
     // Add styles

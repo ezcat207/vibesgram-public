@@ -42,6 +42,7 @@ export const publishFromPreviewSchema = z.object({
     data: z.string(), // base64 encoded image data
     contentType: z.string(), // mime type
   }),
+  crowdfundingGoal: z.number().int().min(1, "目标金额必须大于0").optional(), // 众筹目标金额
 });
 
 // Schema for getting artifact by ID

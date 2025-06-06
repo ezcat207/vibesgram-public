@@ -248,6 +248,28 @@ export function PublishForm({ previewId }: PublishFormProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="crowdfundingGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Crowdfunding Goal (USD, optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="e.g. 100"
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        />
+                      </FormControl>
+                      <FormDescription>If set, the project will display a crowdfunding progress bar and goal.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">
@@ -265,7 +287,7 @@ export function PublishForm({ previewId }: PublishFormProps) {
                           description: form.watch("description"),
                           user: {
                             id: session?.user?.id ?? "",
-                            name: session?.user?.name ?? "Vibe Coder",
+                            name: session?.user?.name ?? "Binbody Coder",
                             image: session?.user?.image ?? "",
                             username: session?.user?.username ?? "",
                           },
@@ -275,6 +297,8 @@ export function PublishForm({ previewId }: PublishFormProps) {
                           fileSize: 0,
                           fileCount: 0,
                           conversationId: null,
+                          crowdfundingGoal: form.watch("crowdfundingGoal") ?? null,
+                          crowdfundingRaised: 0,
                         }}
                         isPreview
                         coverImageOverrideUrl={previewImage}

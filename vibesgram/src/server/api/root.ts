@@ -3,6 +3,7 @@ import { artifactRouter } from "./routers/artifact/router";
 import { conversationRouter } from "./routers/conversation/router";
 import { userRouter } from "./routers/user/router";
 import { utilsRouter } from "./routers/utils/router";
+import { paymentRouter } from "./routers/payment";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   conversation: conversationRouter,
   artifact: artifactRouter,
   utils: utilsRouter,
+  payment: paymentRouter,
 });
 
 // export type definition of API

@@ -60,6 +60,14 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
         },
     });
 
+    const createCheckout = api.payment.createStripeCheckoutSession.useMutation();
+    const handleDonate = async (amount: number) => {
+        const res = await createCheckout.mutateAsync({ artifactId, amount });
+        if (res.url) {
+            window.open(res.url, '_blank');
+        }
+    };
+
     const handleShare = async () => {
         try {
             await navigator.share({
@@ -136,6 +144,18 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
                     onClick={handleLike}
                     disabled={isLikeLoading}
                 />
+                <button
+                    onClick={() => handleDonate(1)}
+                    className="flex flex-col md:flex-row md:gap-2 items-center"
+                >
+                    <span className="inline-block bg-yellow-400 text-black rounded px-2 py-1 text-xs font-bold">Donate $1</span>
+                </button>
+                <button
+                    onClick={() => handleDonate(10)}
+                    className="flex flex-col md:flex-row md:gap-2 items-center"
+                >
+                    <span className="inline-block bg-yellow-500 text-black rounded px-2 py-1 text-xs font-bold">Donate $10</span>
+                </button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button className="flex flex-col md:flex-row md:gap-2 items-center">
