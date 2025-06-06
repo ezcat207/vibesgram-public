@@ -84,14 +84,28 @@ export function ContentCard({ item, isPreview = false, coverImageOverrideUrl }: 
               </span>
             </Link>
           </div>
-          <button
-            className="flex items-center gap-1 transition-colors hover:text-foreground disabled:opacity-50"
-            onClick={handleLike}
-            disabled={isLoading}
-          >
-            <Heart className={cn("h-3 w-3 md:h-3.5 md:w-3.5", isLoading && "animate-pulse")} />
-            <span>{likeCount}</span>
-          </button>
+          {/* Actions: Crowdfunding Progress and Like Button */}
+          <div className="flex items-center gap-2">
+            {item.crowdfundingGoal && item.crowdfundingGoal > 0 && (
+              <div className="flex flex-col items-end">
+                <div className="text-[8px] md:text-[10px]">${item.crowdfundingRaised} / ${item.crowdfundingGoal} USD</div>
+                <div className="w-12 h-1 bg-gray-200 rounded-full">
+                  <div
+                    className="h-1 bg-green-500 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, Math.round((item.crowdfundingRaised / item.crowdfundingGoal) * 100))}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            <button
+              className="flex items-center gap-1 transition-colors hover:text-foreground disabled:opacity-50"
+              onClick={handleLike}
+              disabled={isLoading}
+            >
+              <Heart className={cn("h-3 w-3 md:h-3.5 md:w-3.5", isLoading && "animate-pulse")} />
+              <span>{likeCount}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
