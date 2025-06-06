@@ -148,13 +148,13 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
                     onClick={() => handleDonate(1)}
                     className="flex flex-col md:flex-row md:gap-2 items-center"
                 >
-                    <span className="inline-block bg-yellow-400 text-black rounded px-2 py-1 text-xs font-bold">打赏 $1</span>
+                    <span className="inline-block bg-yellow-400 text-black rounded px-2 py-1 text-xs font-bold">Donate $1</span>
                 </button>
                 <button
                     onClick={() => handleDonate(10)}
                     className="flex flex-col md:flex-row md:gap-2 items-center"
                 >
-                    <span className="inline-block bg-yellow-500 text-black rounded px-2 py-1 text-xs font-bold">打赏 $10</span>
+                    <span className="inline-block bg-yellow-500 text-black rounded px-2 py-1 text-xs font-bold">Donate $10</span>
                 </button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
