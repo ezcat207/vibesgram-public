@@ -11,6 +11,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Progress } from "@/components/ui/progress";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,7 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { getArtifactUrl } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { ExternalLink, Heart, Link2, Share, Trash2 } from "lucide-react";
+import { DollarSign, ExternalLink, Heart, Link2, Share, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -31,15 +32,27 @@ interface ArtifactActionsProps {
     artifactId: string;
     userId: string;
     initialLikeCount: number;
+    crowdfundingGoal?: number | null; // Optional crowdfunding goal
+    currentCrowdfundingAmount?: number; // Current amount raised
 }
 
-export function ArtifactActions({ artifactId, initialLikeCount, userId }: ArtifactActionsProps) {
+export function ArtifactActions({
+    artifactId,
+    initialLikeCount,
+    userId,
+    crowdfundingGoal,
+    currentCrowdfundingAmount = 0, // Default to 0 if not provided
+}: ArtifactActionsProps) {
     const { data: session, status } = useSession();
     const router = useRouter();
     const artifactUrl = getArtifactUrl(artifactId);
     const { likeCount, isLoading: isLikeLoading, handleLike } = useLike(artifactId, initialLikeCount);
     const isOwner = session?.user.id === userId;
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const crowdfundingProgress = crowdfundingGoal && crowdfundingGoal > 0
+        ? Math.min((currentCrowdfundingAmount / crowdfundingGoal) * 100, 100)
+        : 0;
 
     const deleteArtifactMutation = api.artifact.deleteArtifact.useMutation({
         onSuccess: () => {
@@ -129,12 +142,33 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-4">
-            <div className="flex justify-around md:justify-end md:gap-8 items-center max-w-4xl mx-auto">
+            {crowdfundingGoal && crowdfundingGoal > 0 && (
+                <div className="max-w-4xl mx-auto mb-2 px-4 md:px-0">
+                    <div className="flex justify-between text-sm mb-1">
+                        <span>
+                            Raised: <strong>${currentCrowdfundingAmount.toFixed(2)}</strong> / ${crowdfundingGoal.toFixed(2)}
+                        </span>
+                        <span>{crowdfundingProgress.toFixed(0)}%</span>
+                    </div>
+                    <Progress value={crowdfundingProgress} className="w-full h-2" />
+                </div>
+            )}
+            <div className="flex justify-around md:justify-center md:gap-6 items-center max-w-4xl mx-auto">
                 <ActionButton
                     icon={Heart}
                     label={`Like${likeCount ? ` (${likeCount})` : ""}`}
                     onClick={handleLike}
                     disabled={isLikeLoading}
+                />
+                <ActionButton
+                    icon={DollarSign}
+                    label="$1 Donate"
+                    href="https://buy.stripe.com/test_14A3cxek54yb70E63yefC02"
+                />
+                <ActionButton
+                    icon={DollarSign}
+                    label="$10 Donate"
+                    href="https://buy.stripe.com/test_28EaEZ2Bn1lZ1Gk4ZuefC01"
                 />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -80,6 +80,8 @@ model Artifact {
     fileSize       Int
     fileCount      Int
     likeCount      Int       @default(0)
+    crowdfundingGoal         Float?
+    currentCrowdfundingAmount Float     @default(0)
     createdAt      DateTime  @default(now())
     updatedAt      DateTime  @updatedAt
     deletedAt      DateTime?

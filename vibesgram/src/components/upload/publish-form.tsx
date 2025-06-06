@@ -248,6 +248,28 @@ export function PublishForm({ previewId }: PublishFormProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="crowdfundingGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Crowdfunding Goal (Optional)</FormLabel>
+                      <FormDescription>
+                        Set a crowdfunding goal for this artifact (in USD).
+                      </FormDescription>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="e.g., 100"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">

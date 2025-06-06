@@ -38,6 +38,7 @@ export const publishFromPreviewSchema = z.object({
   previewId: z.string(),
   title: z.string().min(1, "Title is required").max(100, "Title too long, max 100 characters"),
   description: z.string().max(500, "Description too long, max 500 characters"),
+  crowdfundingGoal: z.number().optional(),
   coverImage: z.object({
     data: z.string(), // base64 encoded image data
     contentType: z.string(), // mime type

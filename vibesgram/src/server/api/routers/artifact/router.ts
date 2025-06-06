@@ -15,8 +15,15 @@ import {
   getArtifactByIdSchema,
   getArtifactsSchema,
   getUserArtifactsSchema,
-  updateArtifactSchema
+  updateArtifactSchema,
 } from "./schema";
+import { z } from "zod"; // Import Zod
+
+// Define the schema for the new procedure's input
+const handleStripeDonationSchema = z.object({
+  artifactId: z.string(),
+  amount: z.number().positive("Amount must be a positive number"),
+});
 
 export const artifactRouter = createTRPCRouter({
   createPreview,
@@ -215,5 +222,43 @@ export const artifactRouter = createTRPCRouter({
 
       // Return null if no artifact found, client will handle this case
       return artifact;
+    }),
+
+  // Handle Stripe Donation
+  handleStripeDonation: protectedProcedure
+    .input(handleStripeDonationSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { artifactId, amount } = input;
+
+      // Verify artifact exists
+      const existingArtifact = await db.artifact.findUnique({
+        where: { id: artifactId, deletedAt: null },
+      });
+
+      if (!existingArtifact) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Artifact not found",
+        });
+      }
+
+      // Update the current crowdfunding amount
+      try {
+        const updatedArtifact = await db.artifact.update({
+          where: { id: artifactId },
+          data: {
+            currentCrowdfundingAmount: {
+              increment: amount,
+            },
+          },
+        });
+        return updatedArtifact;
+      } catch (error) {
+        console.error("Failed to update crowdfunding amount:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to process donation.",
+        });
+      }
     }),
 });
