@@ -28,22 +28,22 @@ export function Hero() {
           <div className="flex w-full justify-center pb-8 pt-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/95 px-4 py-2 shadow-sm">
               <span className="text-xs sm:text-sm">
-                ✨ Deploy your vibe code and get a shareable link, free no signup!  ✨
+                🚀 Binbody: Fund Vibe Coding, find quality projects, or launch your own! ✨
               </span>
             </div>
           </div>
 
           <div className="space-y-3">
             <h1 className="text-2xl font-bold tracking-tighter text-foreground sm:text-3xl md:text-4xl lg:text-5xl">
-              Share Your <ColourfulText text="Vibe Coding" /> with the World
+              Binbody: Back the <ColourfulText text="Signal" />, Build the Vibe
             </h1>
             <p className="mx-auto flex max-w-[700px] items-center justify-center gap-2 text-base text-muted-foreground md:text-lg">
               <img
                 src="/icon.png"
-                alt="Vibesgram Logo"
+                alt="Binbody Logo"
                 className="inline-block h-6 w-6 align-middle"
               />
-              Vibesgram is vibe coder&apos;s digital gallery, a simple hosting service for everyone
+              Binbody champions high signal-to-noise Vibe Coding. Fund quality, filter distractions, and back the future.
             </p>
           </div>
 

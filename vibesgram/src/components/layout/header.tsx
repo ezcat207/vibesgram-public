@@ -18,7 +18,7 @@ import { MobileNav } from "./mobile-nav";
 
 const title = (
   <span>
-    Vibes<span className="text-primary">gram</span>
+    binbody
   </span>
 );
 

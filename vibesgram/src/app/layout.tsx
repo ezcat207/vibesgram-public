@@ -12,14 +12,14 @@ import { TRPCReactProvider } from "@/trpc/react";
 import GoogleAnalytics from "./GoogleAnalytics";
 
 export const metadata: Metadata = {
-  title: "Vibesgram - Share Your Vibe Coding with the World",
+  title: "Binbody - Fund Vibe Coding, Amplify Signals, Cut Noise",
   description:
-    "Vibesgram is vibe coder's digital gallery. Create, showcase and share your AI-generated web creations instantly with the whole world.",
+    "Binbody is where vibe coding projects get funded. We champion high signal-to-noise creation, helping you find and support quality ideas while filtering out the rest. Join us to build and back the future of Vibe Coding.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
-    title: "Vibesgram - Share Your Vibe Coding with the World",
+    title: "Binbody - Fund Vibe Coding, Amplify Signals, Cut Noise",
     description:
-      "Deploy your vibe code and get a shareable link, free no signup!",
+      "Binbody: Crowdfund innovative vibe coding. Focus on quality, eliminate distractions. Support or launch your project today.",
     images: [{ url: "https://vibesgram.com/icon.png" }],
   },
   alternates: {

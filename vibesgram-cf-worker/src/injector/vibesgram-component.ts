@@ -1,12 +1,12 @@
 export const COMPONENT_HTML = `
-<div class="vibesgram-wrapper">
-  <div class="vibesgram-component">
-    <img class="vibesgram-icon" src="\${props.assetsUrl}/icon.png" alt="Vibesgram">
-    <div class="vibesgram-text-wrapper">
-      <span class="vibesgram-hosted">hosted on</span>
-      <span class="vibesgram-text">Vibes<span class="gram">gram</span></span>
+<div class="binbody-wrapper">
+  <div class="binbody-component">
+    <img class="binbody-icon" src="\${props.assetsUrl}/icon.png" alt="Binbody">
+    <div class="binbody-text-wrapper">
+      <span class="binbody-hosted">hosted on</span>
+      <span class="binbody-text">Binbody</span>
     </div>
-    <button class="vibesgram-close" aria-label="Close">
+    <button class="binbody-close" aria-label="Close">
       <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
         <path d="M7 6.3L12.3 1 13 1.7 7.7 7 13 12.3 12.3 13 7 7.7 1.7 13 1 12.3 6.3 7 1 1.7 1.7 1 7 6.3z" fill="currentColor"/>
       </svg>
@@ -18,19 +18,19 @@ export const COMPONENT_HTML = `
 export const COMPONENT_STYLE = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap');
 
-.vibesgram-wrapper {
+.binbody-wrapper {
   position: fixed;
   bottom: 20px;
   right: 20px;
   z-index: 999999;
 }
 
-.vibesgram-component {
+.binbody-component {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: #fce7f3;
+  background-color: #e0f2f1;
   border-radius: 20px;
   padding: 8px 16px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -39,77 +39,72 @@ export const COMPONENT_STYLE = `
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   user-select: none;
-  animation: vibesgram-fade-in 0.3s ease-out;
+  animation: binbody-fade-in 0.3s ease-out;
 }
 
-.vibesgram-component:hover {
+.binbody-component:hover {
   transform: translateY(-2px);
 }
 
-.vibesgram-icon {
+.binbody-icon {
   width: 26px;
   height: 26px;
   object-fit: contain;
 }
 
-.vibesgram-text-wrapper {
+.binbody-text-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0px;
 }
 
-.vibesgram-hosted {
+.binbody-hosted {
   font-size: 9px;
-  color: #666;
+  color: #00796b;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-weight: 500;
   line-height: 1;
   margin-bottom: -1px;
 }
 
-.vibesgram-text {
+.binbody-text {
   font-size: 16px;
-  color: #000;
+  color: #004d40;
   font-style: italic;
   font-weight: 600;
   line-height: 1.2;
 }
 
-.vibesgram-text .gram {
-  color: #b967ff;
-  font-weight: inherit;
-}
-
-.vibesgram-close {
+.binbody-close {
   position: absolute;
   top: -4px;
   right: -4px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 77, 64, 0.1);
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #666;
+  color: #00796b;
   padding: 0;
   transition: all 0.2s ease;
   opacity: 0;
 }
 
-.vibesgram-component:hover .vibesgram-close {
+.binbody-component:hover .binbody-close {
   opacity: 1;
 }
 
-.vibesgram-close:hover {
-  background: rgba(0, 0, 0, 0.2);
-  color: #333;
+.binbody-close:hover {
+  background: rgba(0, 77, 64, 0.2);
+  color: #004d40;
 }
 
-@keyframes vibesgram-fade-in {
+@keyframes binbody-fade-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -123,10 +118,10 @@ export const COMPONENT_STYLE = `
 
 export const COMPONENT_JS = `
 function initialize(root, props) {
-  const wrapper = root.querySelector('.vibesgram-wrapper');
-  const component = root.querySelector('.vibesgram-component');
-  const closeButton = root.querySelector('.vibesgram-close');
-  const icon = root.querySelector('.vibesgram-icon');
+  const wrapper = root.querySelector('.binbody-wrapper');
+  const component = root.querySelector('.binbody-component');
+  const closeButton = root.querySelector('.binbody-close');
+  const icon = root.querySelector('.binbody-icon');
 
   // Set icon src
   if (icon && props.assetsUrl) {
@@ -136,7 +131,7 @@ function initialize(root, props) {
   if (component && closeButton) {
     // Handle component click
     component.addEventListener('click', (e) => {
-      if (!e.target.closest('.vibesgram-close')) {
+      if (!e.target.closest('.binbody-close')) {
         const baseUrl = 'https://' + props.appDomain;
         const path = props.type === 'preview' 
           ? \`/upload/preview/\${props.artifactId}\`
