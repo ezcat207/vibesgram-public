@@ -297,6 +297,8 @@ export function PublishForm({ previewId }: PublishFormProps) {
                           fileSize: 0,
                           fileCount: 0,
                           conversationId: null,
+                          crowdfundingGoal: form.watch("crowdfundingGoal") ?? null,
+                          crowdfundingRaised: 0,
                         }}
                         isPreview
                         coverImageOverrideUrl={previewImage}
