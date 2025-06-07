@@ -18,8 +18,8 @@ export const paymentRouter = createTRPCRouter({
             price_data: {
               currency: "usd",
               product_data: {
-                name: "Vibesgram 众筹打赏",
-                description: `支持项目ID: ${input.artifactId}`,
+                name: "Support Binbody Idea ",
+                description: `Idea ID: ${input.artifactId}`,
               },
               unit_amount: input.amount * 100, // 美元转为分
             },
