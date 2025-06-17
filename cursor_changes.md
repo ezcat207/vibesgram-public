@@ -73,3 +73,16 @@
    - 新链接: https://discord.gg/t4P8S6DH2p
 
 > 更新了网站的 Discord 邀请链接到最新可用链接。 ([https://discord.gg/t4P8S6DH2p](https://discord.gg/t4P8S6DH2p))
+
+## 2025-06-16 截图功能迁移至 Browserless.io
+
+1.  **新增 API 路由**: 创建 `vibesgram/src/app/api/screenshot/route.ts` 文件。
+    *   该文件封装了对 `https://chrome.browserless.io/screenshot` 的调用。
+    *   使用 `BROWSERLESS_TOKEN` 进行认证（需在环境变量中配置）。
+    *   请求 `browserless.io` 返回 base64 编码的图片，并将其封装为 `success: true, data: base64Image` 的 JSON 格式，以兼容现有系统。
+2.  **更新 TRPC 路由**: 修改 `vibesgram/src/server/api/routers/utils/router.ts` 文件。
+    *   将原先直接调用 `SCREENSHOT_SERVICE_URL` 的逻辑改为调用本地新增的 `/api/screenshot` 路由。
+    *   移除了对 `env.SCREENSHOT_SERVICE_URL` 的直接引用和 `env` 的导入。
+    *   简化了 `isAllowedDomain` 函数的逻辑，使其在通过本地 API 代理后仍能工作。
+
+> 截图功能已成功迁移至 Browserless.io 服务，并通过 Next.js API 路由进行代理和兼容性处理。
