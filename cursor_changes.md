@@ -86,3 +86,9 @@
     *   简化了 `isAllowedDomain` 函数的逻辑，使其在通过本地 API 代理后仍能工作。
 
 > 截图功能已成功迁移至 Browserless.io 服务，并通过 Next.js API 路由进行代理和兼容性处理。
+
+## 2025-06-16 暂时隐藏截图按钮
+
+1.  在 `vibesgram/src/components/upload/publish-form.tsx` 文件中，暂时注释掉了"Take Screenshot"按钮的 JSX 代码，使其在前端页面上不再显示。
+
+> 暂时隐藏了截图按钮，以便在解决截图功能背后的域名安全问题时，用户可以继续使用"Upload Cover Image"功能。

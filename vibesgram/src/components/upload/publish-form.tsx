@@ -199,6 +199,8 @@ export function PublishForm({ previewId }: PublishFormProps) {
                       accept="image/*"
                       className="hidden"
                     />
+                    {/* Take Screenshot button temporarily hidden */}
+                    {/*
                     <Button
                       type="button"
                       disabled={screenshotMutation.isPending}
@@ -209,11 +211,13 @@ export function PublishForm({ previewId }: PublishFormProps) {
                         }
 
                         const url = getPreviewUrl(previewId);
+                        console.log("Attempting to screenshot URL:", url);
                         screenshotMutation.mutate({ url });
                       }}
                     >
                       {screenshotMutation.isPending ? "Taking Screenshot (about 5s)..." : "Take Screenshot (600x800)"}
                     </Button>
+                    */}
                     <Button
                       type="button"
                       variant="outline"
