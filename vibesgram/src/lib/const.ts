@@ -1,4 +1,4 @@
-export const DISCORD_INVITE_URL = "https://discord.gg/H64tusyH";
+export const DISCORD_INVITE_URL = "https://discord.gg/t4P8S6DH2p";
 
 /**
  * Tool name enum that directly maps to API call names

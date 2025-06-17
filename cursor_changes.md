@@ -65,3 +65,11 @@
    - Stream ID: 11363592229
 
 > 更新了网站的 Google Analytics 配置，使用新的 Measurement ID 和 Stream ID。
+
+## 2025-06-16 Discord 链接更新
+
+1. 在 vibesgram/src/lib/const.ts 中更新了 Discord 邀请链接：
+   - 旧链接: https://discord.gg/H64tusyH
+   - 新链接: https://discord.gg/t4P8S6DH2p
+
+> 更新了网站的 Discord 邀请链接到最新可用链接。 ([https://discord.gg/t4P8S6DH2p](https://discord.gg/t4P8S6DH2p))
