@@ -92,3 +92,82 @@
 1.  在 `vibesgram/src/components/upload/publish-form.tsx` 文件中，暂时注释掉了"Take Screenshot"按钮的 JSX 代码，使其在前端页面上不再显示。
 
 > 暂时隐藏了截图按钮，以便在解决截图功能背后的域名安全问题时，用户可以继续使用"Upload Cover Image"功能。
+
+# 2024-06-09 预览API（previewai）实现任务拆分
+
+## 任务目标
+实现`POST /api/preview/create`接口，实现HTML内容的预览创建，支持截图、R2存储、数据库记录、速率与大小限制等。
+
+## 任务拆分
+1. 新建`vibesgram/src/app/api/preview/create/route.ts`，实现API路由。
+2. 设计并实现请求体校验（schema），支持html/options参数。
+3. 集成HTML包装与处理逻辑。
+4. 集成预览创建核心逻辑。
+5. 集成R2存储与过期机制。
+6. 集成速率限制与文件大小限制。
+7. 返回标准响应格式。
+8. 可选：集成截图服务，生成预览图。
+9. 可选：数据库记录预览信息。
+
+每完成一步，详细记录更改内容。
+
+### 2024-06-09 步骤1：新建API路由文件
+- 新建目录：`vibesgram/src/app/api/preview/create/`
+- 新建文件：`route.ts`，用于实现POST /api/preview/create接口。
+
+### 2024-06-09 步骤2：实现请求体校验
+- 在`route.ts`中引入并使用现有schema校验工具，对html/options参数进行校验。
+- 校验失败时返回400错误。
+
+### 2024-06-09 步骤3：集成HTML包装与处理逻辑
+- 计划在API中支持html字符串和options参数，自动包装为index.html文件。
+- 复用`wrapHtmlContent`和`createPreviewFileFromHtml`工具，将html/options转为标准files结构。
+- 若body含html字段，则自动转换为files结构，兼容前端直接传html的用法。
+
+### 2024-06-09 步骤4：集成预览创建核心逻辑
+- 在API中引入并调用`createPreview`核心业务逻辑。
+- 传入标准化后的files参数，获取预览ID、URL等信息。
+- 预留后续R2存储、过期机制、速率与大小限制等集成点。
+
+### 2024-06-09 步骤5：集成R2存储与过期机制
+- 预览文件上传到R2存储，路径为preview/{id}/content/。
+- 数据库记录预览ID、文件大小、数量、过期时间。
+- 过期时间默认3小时后。
+
+### 2024-06-09 步骤6：预览有效期改为7天
+- 新增常量`PREVIEW_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000`，写入vibesgram/src/lib/const.ts。
+- API路由中过期时间由原3小时改为7天，统一用该常量控制。
+
+## 修复vibesgram/src/app/api/preview/create/route.ts的类型安全问题
+
+- 用zod schema类型替换了所有`any`类型，消除了TS类型警告：
+  - `createPreviewFileFromHtml`返回类型由`any`改为`z.infer<typeof createPreviewSchema>["files"][number]`
+  - `body.html`显式断言为`string`
+  - `files`变量类型由`any`改为`z.infer<typeof createPreviewSchema>["files"]`
+  - `reduce`、`some`、`map`等方法去除了`any`类型参数，全部类型安全
+- 这样保证了API的类型安全，消除了eslint关于`any`和不安全赋值的报错。
+
+## 进一步修复vibesgram/src/app/api/preview/create/route.ts的类型导入警告
+
+- 将`NextRequest`改为`import type { NextRequest }`，只作为类型导入，消除@typescript-eslint/consistent-type-imports警告。
+
+## 2024-06-09 批量修复ESLint类型与未使用变量警告
+
+1. `src/app/api/preview/create/route.ts`
+   - 用`unknown`类型接收`req.json()`，用zod schema校验并推断类型，彻底消除no-unsafe-assignment和no-unsafe-member-access。
+   - `parsedBody`类型安全，所有成员访问都类型安全。
+
+2. `src/components/agent/tools/base/tool-container.tsx`
+   - 将`ReactNode`只用作类型导入，修复consistent-type-imports警告。
+
+3. `src/components/artifact/artifact-actions.tsx`
+   - 移除了未使用的`status`变量。
+   - `catch`块移除未使用的`error`变量，修复no-unused-vars警告。
+
+4. `src/components/sections/hero.tsx`
+   - 移除了未使用的`toast`变量，修复no-unused-vars警告。
+
+## 2024-06-09 API版本化与测试脚本同步
+
+- 将`src/app/api/preview/create`目录迁移为`src/app/api/v1/preview/create`，API路径统一为`/api/v1/preview/create`。
+- 同步修改`test/previewapi.py`中的url为新版API路径。

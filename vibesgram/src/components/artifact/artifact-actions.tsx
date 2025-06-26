@@ -34,7 +34,7 @@ interface ArtifactActionsProps {
 }
 
 export function ArtifactActions({ artifactId, initialLikeCount, userId }: ArtifactActionsProps) {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const artifactUrl = getArtifactUrl(artifactId);
     const { likeCount, isLoading: isLikeLoading, handleLike } = useLike(artifactId, initialLikeCount);
@@ -74,7 +74,7 @@ export function ArtifactActions({ artifactId, initialLikeCount, userId }: Artifa
                 title: document.title,
                 url: window.location.href,
             });
-        } catch (error) {
+        } catch {
             await navigator.clipboard.writeText(window.location.href);
             toast({
                 title: "Link copied",

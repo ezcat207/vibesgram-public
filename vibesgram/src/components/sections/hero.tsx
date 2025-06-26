@@ -1,12 +1,9 @@
 "use client";
 import ColourfulText from "@/components/ui/colourful-text";
 import { FileUploader } from "@/components/upload/file-uploader";
-import { useToast } from "@/hooks/use-toast";
 import { ArrowDown } from "lucide-react";
 
 export function Hero() {
-  const { toast } = useToast();
-
   // Function to scroll to content section when arrow is clicked
   const scrollToContent = () => {
     const contentSection = document.getElementById("content-section");

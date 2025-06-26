@@ -34,6 +34,18 @@ export const MAX_USER_ARTIFACTS = 20;
 // disable agent until we are ready to launch
 export const DISABLE_AGENT = true;
 
-export const PREVIEW_EXPIRATION_HOURS = 24;
+
 
 export const SCREENSHOT_TIMEOUT_MS = 10000;
+
+/**
+ * 预览有效期（小时）
+ * 7天 = 7 * 24 小时
+ */
+export const PREVIEW_EXPIRATION_HOURS = 7 * 24;
+
+/**
+ * 预览有效期（毫秒）
+ * 用于所有需要毫秒参数的场景，统一引用
+ */
+export const PREVIEW_EXPIRES_MS = PREVIEW_EXPIRATION_HOURS * 60 * 60 * 1000;
