@@ -4,31 +4,31 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 210 30% 10%;
-    --card: 210 40% 96%;
-    --card-foreground: 210 30% 10%;
-    --popover: 210 40% 98%;
-    --popover-foreground: 210 30% 10%;
-    --primary: 180 65% 45%;
-    --primary-foreground: 180 20% 98%;
-    --secondary: 150 60% 40%;
-    --secondary-foreground: 150 20% 98%;
-    --muted: 210 30% 90%;
-    --muted-foreground: 210 20% 40%;
-    --accent: 200 70% 55%;
-    --accent-foreground: 210 30% 10%;
+    --background: 220 15% 10%; /* 深黑蓝 */
+    --foreground: 0 0% 98%; /* 近白 */
+    --card: 220 15% 13%; /* 深灰黑 */
+    --card-foreground: 0 0% 98%;
+    --popover: 220 15% 13%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 34 100% 50%; /* #FF9900 橙色 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 10% 25%; /* 深灰蓝 */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 10% 20%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 34 100% 50%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 20% 85%;
-    --input: 210 20% 90%;
-    --ring: 180 65% 45%;
-    --chart-1: 180 65% 45%;
-    --chart-2: 150 60% 40%;
-    --chart-3: 200 70% 55%;
-    --chart-4: 180 50% 35%;
-    --chart-5: 150 45% 30%;
-    --radius: 0.5rem;
+    --border: 220 10% 20%; /* 深灰 */
+    --input: 220 10% 20%;
+    --ring: 34 100% 50%;
+    --chart-1: 34 100% 50%;
+    --chart-2: 220 10% 25%;
+    --chart-3: 220 15% 40%;
+    --chart-4: 34 100% 30%;
+    --chart-5: 34 100% 70%;
+    --radius: 0.75rem;
   }
 }
 
