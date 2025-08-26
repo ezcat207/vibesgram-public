@@ -137,7 +137,6 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
         error: error.message,
         code: error.data?.code,
         httpStatus: error.data?.httpStatus,
-        stack: error.stack,
         fileCount: variables.files.length,
       });
       

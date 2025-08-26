@@ -8,6 +8,15 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
+// Type for AWS S3 errors
+interface AwsS3Error extends Error {
+  code?: string;
+  $metadata?: {
+    httpStatusCode?: number;
+    requestId?: string;
+  };
+}
+
 // Initialize S3 client for R2
 const s3Client = new S3Client({
   region: "auto",
@@ -35,8 +44,8 @@ export async function uploadToR2(
   console.log(`[R2] Starting upload: ${key}, size: ${file.length} bytes, type: ${contentType}`);
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const attemptStart = Date.now();
     try {
-      const attemptStart = Date.now();
       console.log(`[R2] Upload attempt ${attempt}/${maxRetries} for ${key}`);
 
       await s3Client.send(
@@ -55,13 +64,14 @@ export async function uploadToR2(
       return key;
     } catch (error) {
       lastError = error as Error;
+      const s3Error = error as AwsS3Error;
       const attemptDuration = Date.now() - attemptStart;
       
       console.error(`[R2] Upload attempt ${attempt}/${maxRetries} failed for ${key} after ${attemptDuration}ms:`, {
         error: lastError.message,
-        code: (lastError as any).code,
-        statusCode: (lastError as any).$metadata?.httpStatusCode,
-        requestId: (lastError as any).$metadata?.requestId,
+        code: s3Error.code,
+        statusCode: s3Error.$metadata?.httpStatusCode,
+        requestId: s3Error.$metadata?.requestId,
       });
       
       if (attempt === maxRetries) {

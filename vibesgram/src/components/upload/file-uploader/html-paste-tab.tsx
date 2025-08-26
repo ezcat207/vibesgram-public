@@ -20,8 +20,6 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
 
   // Check if HTML contains basic structure
   const isValidHtml = htmlContent.trim().length > 0;
-  const hasHtmlStructure =
-    htmlContent.includes("<html") || htmlContent.includes("<body");
 
   // API mutation
   const createPreviewMutation = api.artifact.createPreview.useMutation({
@@ -50,7 +48,6 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
         error: error.message,
         code: error.data?.code,
         httpStatus: error.data?.httpStatus,
-        stack: error.stack,
       });
       
       toast({
