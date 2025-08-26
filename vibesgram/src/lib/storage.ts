@@ -17,6 +17,10 @@ const s3Client = new S3Client({
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
   },
   forcePathStyle: true,
+  requestHandler: {
+    requestTimeout: 30000, // 30 seconds timeout
+    connectionTimeout: 10000, // 10 seconds connection timeout
+  },
 });
 
 export async function uploadToR2(
@@ -24,16 +28,35 @@ export async function uploadToR2(
   contentType: string,
   key: string,
 ): Promise<string> {
-  await s3Client.send(
-    new PutObjectCommand({
-      Bucket: env.R2_BUCKET_NAME,
-      Key: key,
-      Body: file,
-      ContentType: contentType,
-    }),
-  );
+  const maxRetries = 3;
+  let lastError: Error;
 
-  return key;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: env.R2_BUCKET_NAME,
+          Key: key,
+          Body: file,
+          ContentType: contentType,
+        }),
+      );
+
+      return key;
+    } catch (error) {
+      lastError = error as Error;
+      
+      if (attempt === maxRetries) {
+        throw new Error(`Failed to upload to R2 after ${maxRetries} attempts: ${lastError.message}`);
+      }
+      
+      // Wait before retry (exponential backoff)
+      const delay = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError!;
 }
 
 /**
