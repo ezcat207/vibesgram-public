@@ -28,18 +28,16 @@ export const createPreview = publicProcedure
         console.error(`🚀 [tRPC createPreview ${requestId}] STARTING with ${input.files.length} files`);
         
         try {
-            // Validate total content size based on base64 decoded data
+            // Size calculation
             const sizeCalcStart = Date.now();
             const totalSize = input.files.reduce((sum, file) => {
                 const decodedSize = Math.ceil(file.content.length * 0.75);
                 return sum + decodedSize;
             }, 0);
             const sizeCalcDuration = Date.now() - sizeCalcStart;
-            
             console.error(`📏 [tRPC createPreview ${requestId}] Size calculation: ${(totalSize / (1024 * 1024)).toFixed(2)}MB in ${sizeCalcDuration}ms`);
 
             if (totalSize > MAX_ARTIFACT_FILE_TOTAL_SIZE) {
-                console.error(`❌ [tRPC createPreview ${requestId}] SIZE LIMIT EXCEEDED: ${totalSize} > ${MAX_ARTIFACT_FILE_TOTAL_SIZE}`);
                 throw new TRPCError({
                     code: "PAYLOAD_TOO_LARGE",
                     message: `Total content exceeds the ${MAX_ARTIFACT_FILE_TOTAL_SIZE / (1024 * 1024)}MB size limit`,
@@ -48,7 +46,6 @@ export const createPreview = publicProcedure
 
             const indexFileExists = input.files.some(file => file.path === "index.html");
             if (!indexFileExists) {
-                console.error(`❌ [tRPC createPreview ${requestId}] MISSING INDEX.HTML`);
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "An 'index.html' file is required for all previews",
@@ -58,50 +55,41 @@ export const createPreview = publicProcedure
             const previewId = generateShortId();
             console.error(`🔑 [tRPC createPreview ${requestId}] Generated preview ID: ${previewId}`);
             
-            // DB collision check
+            // 🔥 THIS IS THE SMOKING GUN TEST - Time the first DB call
             const dbCheckStart = Date.now();
-            console.error(`🔍 [tRPC createPreview ${requestId}] CHECKING DB COLLISION...`);
-            const existing = await db.preview.findUnique({ where: { id: previewId } });
-            const dbCheckDuration = Date.now() - dbCheckStart;
+            console.error(`🔍 [tRPC createPreview ${requestId}] ABOUT TO HIT DATABASE - Time: ${Date.now() - requestStart}ms elapsed`);
             
-            console.error(`✅ [tRPC createPreview ${requestId}] DB check complete in ${dbCheckDuration}ms, collision: ${!!existing}`);
+            const existing = await db.preview.findUnique({ where: { id: previewId } });
+            
+            const dbCheckDuration = Date.now() - dbCheckStart;
+            console.error(`💥 [tRPC createPreview ${requestId}] DATABASE CALL FINISHED! Duration: ${dbCheckDuration}ms - THIS SHOULD BE ~4300ms IF IT'S THE CULPRIT`);
 
             if (existing) {
-                console.error(`💥 [tRPC createPreview ${requestId}] ID COLLISION DETECTED: ${previewId}`);
                 throw new TRPCError({
-                    code: "BAD_REQUEST",
+                    code: "BAD_REQUEST", 
                     message: "Preview ID already exists",
                 });
             }
 
-            // R2 Upload Phase
+            // R2 Upload Phase - This should be fast now
             const uploadStart = Date.now();
-            console.error(`📤 [tRPC createPreview ${requestId}] STARTING R2 UPLOADS for ${input.files.length} files - THIS IS WHERE THE DELAY MIGHT BE`);
+            console.error(`📤 [tRPC createPreview ${requestId}] Starting R2 uploads - Time: ${Date.now() - requestStart}ms elapsed`);
             
             const uploadPromises = input.files.map((file, index) => {
                 const previewPath = `${getPreviewStoragePath(previewId)}/${file.path}`;
                 const fileBuffer = Buffer.from(file.content, "base64");
-                
-                console.error(`📄 [tRPC createPreview ${requestId}] Queuing upload ${index + 1}/${input.files.length}: ${file.path} (${fileBuffer.length} bytes)`);
-                
-                return uploadToR2(fileBuffer, file.contentType, previewPath).catch(error => {
-                    console.error(`💥 [tRPC createPreview ${requestId}] R2 UPLOAD FAILED for ${file.path}:`, error);
-                    throw error;
-                });
+                return uploadToR2(fileBuffer, file.contentType, previewPath);
             });
 
-            console.error(`⏱️  [tRPC createPreview ${requestId}] WAITING for Promise.all on ${uploadPromises.length} uploads...`);
             await Promise.all(uploadPromises);
             const uploadDuration = Date.now() - uploadStart;
-            console.error(`✅ [tRPC createPreview ${requestId}] ALL R2 UPLOADS COMPLETED in ${uploadDuration}ms`);
-
-            // Calculate expiry time
-            const previewExpiresAt = new Date();
-            previewExpiresAt.setHours(previewExpiresAt.getHours() + 3);
+            console.error(`✅ [tRPC createPreview ${requestId}] R2 uploads completed in ${uploadDuration}ms`);
 
             // DB Write Phase
             const dbWriteStart = Date.now();
-            console.error(`💾 [tRPC createPreview ${requestId}] WRITING TO DATABASE...`);
+            const previewExpiresAt = new Date();
+            previewExpiresAt.setHours(previewExpiresAt.getHours() + 3);
+
             const preview = await db.preview.create({
                 data: {
                     id: previewId,
@@ -113,15 +101,13 @@ export const createPreview = publicProcedure
             const dbWriteDuration = Date.now() - dbWriteStart;
             
             const totalDuration = Date.now() - requestStart;
-            console.error(`🎉 [tRPC createPreview ${requestId}] SUCCESS! Total time: ${totalDuration}ms`, {
-                timings: {
-                    sizeCalc: sizeCalcDuration,
-                    dbCheck: dbCheckDuration,
-                    upload: uploadDuration,
-                    dbWrite: dbWriteDuration,
-                    total: totalDuration,
-                },
-                breakdown: `Size:${sizeCalcDuration}ms + DB:${dbCheckDuration}ms + Upload:${uploadDuration}ms + Write:${dbWriteDuration}ms = ${totalDuration}ms`
+            console.error(`🎉 [tRPC createPreview ${requestId}] FINAL BREAKDOWN:`, {
+                sizeCalc: sizeCalcDuration,
+                dbCheck: dbCheckDuration, // ← THIS SHOULD BE ~4300ms
+                upload: uploadDuration,
+                dbWrite: dbWriteDuration,
+                total: totalDuration,
+                hypothesis: dbCheckDuration > 4000 ? "✅ DATABASE IS THE CULPRIT!" : "❌ Not database, investigate further"
             });
 
             return {
@@ -130,12 +116,7 @@ export const createPreview = publicProcedure
             };
         } catch (error) {
             const totalDuration = Date.now() - requestStart;
-            console.error(`💥 [tRPC createPreview ${requestId}] FAILED after ${totalDuration}ms:`, {
-                error: error instanceof Error ? error.message : String(error),
-                type: error?.constructor?.name,
-                isTRPCError: error instanceof TRPCError,
-                code: error instanceof TRPCError ? error.code : undefined,
-            });
+            console.error(`💥 [tRPC createPreview ${requestId}] FAILED after ${totalDuration}ms:`, String(error));
             
             if (error instanceof TRPCError) {
                 throw error;
