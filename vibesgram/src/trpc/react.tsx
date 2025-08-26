@@ -55,6 +55,13 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             headers.set("x-trpc-source", "nextjs-react");
             return headers;
           },
+          fetch: (url, options = {}) => {
+            return fetch(url, {
+              ...options,
+              // Set longer timeout for file upload operations
+              signal: AbortSignal.timeout(60000), // 60 seconds timeout
+            });
+          },
         }),
       ],
     })
