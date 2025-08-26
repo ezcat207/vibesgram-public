@@ -25,7 +25,18 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
 
   // API mutation
   const createPreviewMutation = api.artifact.createPreview.useMutation({
-    onSuccess: (data) => {
+    onMutate: () => {
+      const requestId = Math.random().toString(36).substring(7);
+      console.log(`[Client HTML ${requestId}] Starting preview creation mutation`);
+      return { requestId };
+    },
+    onSuccess: (data, variables, context) => {
+      console.log(`[Client HTML ${context?.requestId}] Preview created successfully:`, {
+        previewId: data.preview.id,
+        fileCount: data.preview.fileCount,
+        fileSize: data.preview.fileSize,
+      });
+      
       onPreviewCreated(data.preview.id);
 
       toast({
@@ -34,14 +45,21 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
         variant: "default",
       });
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      console.error(`[Client HTML ${context?.requestId}] Preview creation failed:`, {
+        error: error.message,
+        code: error.data?.code,
+        httpStatus: error.data?.httpStatus,
+        stack: error.stack,
+      });
+      
       toast({
         title: "Failed to create preview",
         description: error.message,
         variant: "destructive",
       });
     },
-  });
+  });;
 
   // Create blob URL for the iframe
   useEffect(() => {

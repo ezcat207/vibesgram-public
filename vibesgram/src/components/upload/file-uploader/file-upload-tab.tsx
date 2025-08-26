@@ -108,7 +108,22 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
 
   // API mutation
   const createPreviewMutation = api.artifact.createPreview.useMutation({
-    onSuccess: (data) => {
+    onMutate: (variables) => {
+      const requestId = Math.random().toString(36).substring(7);
+      console.log(`[Client Upload ${requestId}] Starting preview creation mutation:`, {
+        fileCount: variables.files.length,
+        totalSize: variables.files.reduce((sum, file) => sum + atob(file.content).length, 0),
+        files: variables.files.map(f => ({ path: f.path, size: atob(f.content).length, type: f.contentType })),
+      });
+      return { requestId };
+    },
+    onSuccess: (data, variables, context) => {
+      console.log(`[Client Upload ${context?.requestId}] Preview created successfully:`, {
+        previewId: data.preview.id,
+        fileCount: data.preview.fileCount,
+        fileSize: data.preview.fileSize,
+      });
+      
       onPreviewCreated(data.preview.id);
 
       toast({
@@ -117,14 +132,22 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
         variant: "default",
       });
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      console.error(`[Client Upload ${context?.requestId}] Preview creation failed:`, {
+        error: error.message,
+        code: error.data?.code,
+        httpStatus: error.data?.httpStatus,
+        stack: error.stack,
+        fileCount: variables.files.length,
+      });
+      
       toast({
         title: "Failed to create preview",
         description: error.message,
         variant: "destructive",
       });
     },
-  });
+  });;
 
   // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
