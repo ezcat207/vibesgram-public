@@ -5,11 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { MAX_ARTIFACT_FILE_TOTAL_SIZE, MAX_USER_ARTIFACTS } from "@/lib/const";
-<<<<<<< HEAD
-// Removed tRPC import - now using V1 API
-=======
 // Removed tRPC dependency - using V1 API directly for better performance
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 import { FileIcon, InfoIcon, UploadIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { createPreviewFilesFromUpload, type PreviewFile } from "./utils";
@@ -110,11 +106,10 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
     }
   };
 
-<<<<<<< HEAD
   // V1 API state
   const [isCreatingPreview, setIsCreatingPreview] = useState(false);
 
-  // V1 API function
+  // V1 API function for file upload
   const createPreviewWithV1 = async (files: PreviewFile[]) => {
     setIsCreatingPreview(true);
     try {
@@ -148,79 +143,6 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
       setIsCreatingPreview(false);
     }
   };
-=======
-  // API mutation
-  const createPreviewMutation = {
-    isPending: false,
-    mutate: async (variables: { files: any[] }) => {
-      const requestId = Math.random().toString(36).substring(7);
-      console.log(`[Client Upload V1 ${requestId}] Starting preview creation with V1 API:`, {
-        fileCount: variables.files.length,
-        totalSize: variables.files.reduce((sum, file) => sum + atob(file.content).length, 0),
-        files: variables.files.map(f => ({ path: f.path, size: atob(f.content).length, type: f.contentType })),
-      });
-      
-      try {
-        const startTime = Date.now();
-        
-        const response = await fetch('/api/v1/preview/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ files: variables.files }),
-        });
-        
-        const duration = Date.now() - startTime;
-        console.log(`[Client Upload V1 ${requestId}] API call completed in ${duration}ms`);
-        
-        const data = await response.json();
-        
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Failed to create preview');
-        }
-        
-        console.log(`[Client Upload V1 ${requestId}] Preview created successfully:`, {
-          previewId: data.data.previewId,
-          fileCount: data.data.fileCount,
-          fileSize: data.data.fileSize,
-          duration: `${duration}ms`,
-        });
-        
-        // Transform response to match tRPC format
-        const transformedData = {
-          preview: {
-            id: data.data.previewId,
-            fileCount: data.data.fileCount,
-            fileSize: data.data.fileSize,
-          }
-        };
-        
-        onPreviewCreated(transformedData.preview.id);
-
-        toast({
-          title: "Preview created successfully",
-          description: "Redirecting to the preview page",
-          variant: "default",
-        });
-        
-      } catch (error: any) {
-        console.error(`[Client Upload V1 ${requestId}] Preview creation failed:`, {
-          error: error.message,
-          fileCount: variables.files.length,
-        });
-        
-        toast({
-          title: "Failed to create preview",
-          description: error.message || "Unknown error occurred",
-          variant: "destructive",
-        });
-        
-        throw error;
-      }
-    }
-  };;
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 
   // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

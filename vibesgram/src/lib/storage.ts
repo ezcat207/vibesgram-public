@@ -8,20 +8,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-<<<<<<< HEAD
 // Initialize S3 client for R2 with optimized settings
-=======
-// Type for AWS S3 errors
-interface AwsS3Error extends Error {
-  code?: string;
-  $metadata?: {
-    httpStatusCode?: number;
-    requestId?: string;
-  };
-}
-
-// Initialize S3 client for R2
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 const s3Client = new S3Client({
   region: "auto",
   endpoint: env.R2_ENDPOINT,
@@ -30,14 +17,7 @@ const s3Client = new S3Client({
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
   },
   forcePathStyle: true,
-<<<<<<< HEAD
   maxAttempts: 1,              // No retries for speed
-=======
-  requestHandler: {
-    requestTimeout: 30000, // 30 seconds timeout
-    connectionTimeout: 10000, // 10 seconds connection timeout
-  },
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 });
 
 export async function uploadToR2(
@@ -72,7 +52,7 @@ export async function uploadToR2(
       return key;
     } catch (error) {
       lastError = error as Error;
-      const s3Error = error as AwsS3Error;
+      const s3Error = error as { code?: string; $metadata?: { httpStatusCode?: number; requestId?: string } };
       const attemptDuration = Date.now() - attemptStart;
       
       console.error(`❌ [R2] Upload attempt ${attempt}/${maxRetries} FAILED for ${key} after ${attemptDuration}ms:`, {

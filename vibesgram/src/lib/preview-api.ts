@@ -3,6 +3,10 @@
  * Supports both file upload and HTML text input
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 export interface PreviewFile {
   path: string;
   content: string; // base64 encoded
@@ -31,6 +35,19 @@ export interface CreatePreviewError extends Error {
   };
 }
 
+interface V1ApiResponse {
+  success: boolean;
+  message?: string;
+  code?: string;
+  data?: {
+    previewId: string;
+    fileSize: number;
+    fileCount: number;
+    expiresAt: string;
+  };
+}
+
+
 /**
  * Create preview using V1 API (fast, ~900ms)
  * Supports both file upload and HTML input formats
@@ -44,7 +61,7 @@ export async function createPreview(input: CreatePreviewInput): Promise<CreatePr
     body: JSON.stringify(input),
   });
 
-  const data = await response.json();
+  const data = await response.json() as V1ApiResponse;
 
   if (!response.ok) {
     const error = new Error(data.message || 'Failed to create preview') as CreatePreviewError;
@@ -62,6 +79,10 @@ export async function createPreview(input: CreatePreviewInput): Promise<CreatePr
       httpStatus: response.status,
     };
     throw error;
+  }
+
+  if (!data.data) {
+    throw new Error('Invalid API response: missing data');
   }
 
   // Transform V1 API response to match tRPC response format
@@ -89,7 +110,7 @@ export async function createPreviewFromHtml(html: string): Promise<CreatePreview
     body: JSON.stringify({ html }), // V1 API supports direct HTML input
   });
 
-  const data = await response.json();
+  const data = await response.json() as V1ApiResponse;
 
   if (!response.ok) {
     const error = new Error(data.message || 'Failed to create preview') as CreatePreviewError;
@@ -107,6 +128,10 @@ export async function createPreviewFromHtml(html: string): Promise<CreatePreview
       httpStatus: response.status,
     };
     throw error;
+  }
+
+  if (!data.data) {
+    throw new Error('Invalid API response: missing data');
   }
 
   // Transform V1 API response to match tRPC response format

@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 import { env } from "@/env";
 
-<<<<<<< HEAD
 const createPrismaClient = () => {
   // Production-grade connection pooling for tRPC performance
   const connectionUrl = new URL(env.DATABASE_URL);
@@ -22,19 +21,6 @@ const createPrismaClient = () => {
     },
   });
 };
-=======
-const createPrismaClient = () =>
-  new PrismaClient({
-    log:
-      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-    // Optimize for serverless - reduce connection pool size
-    datasources: {
-      db: {
-        url: env.DATABASE_URL + "?connection_limit=1&pool_timeout=0",
-      },
-    },
-  });;;
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;

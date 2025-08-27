@@ -52,7 +52,6 @@ export const createPreview = publicProcedure
                 });
             }
 
-<<<<<<< HEAD
             // Generate unique ID and parallelize operations for performance
             const previewId = generateShortId();
             const previewExpiresAt = new Date();
@@ -77,65 +76,6 @@ export const createPreview = publicProcedure
                     },
                 }),
             ]);
-=======
-            const previewId = generateShortId();
-            console.error(`🔑 [tRPC createPreview ${requestId}] Generated preview ID: ${previewId}`);
-            
-            // 🔥 THIS IS THE SMOKING GUN TEST - Time the first DB call
-            const dbCheckStart = Date.now();
-            console.error(`🔍 [tRPC createPreview ${requestId}] ABOUT TO HIT DATABASE - Time: ${Date.now() - requestStart}ms elapsed`);
-            
-            const existing = await db.preview.findUnique({ where: { id: previewId } });
-            
-            const dbCheckDuration = Date.now() - dbCheckStart;
-            console.error(`💥 [tRPC createPreview ${requestId}] DATABASE CALL FINISHED! Duration: ${dbCheckDuration}ms - THIS SHOULD BE ~4300ms IF IT'S THE CULPRIT`);
-
-            if (existing) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST", 
-                    message: "Preview ID already exists",
-                });
-            }
-
-            // R2 Upload Phase - This should be fast now
-            const uploadStart = Date.now();
-            console.error(`📤 [tRPC createPreview ${requestId}] Starting R2 uploads - Time: ${Date.now() - requestStart}ms elapsed`);
-            
-            const uploadPromises = input.files.map((file, index) => {
-                const previewPath = `${getPreviewStoragePath(previewId)}/${file.path}`;
-                const fileBuffer = Buffer.from(file.content, "base64");
-                return uploadToR2(fileBuffer, file.contentType, previewPath);
-            });
-
-            await Promise.all(uploadPromises);
-            const uploadDuration = Date.now() - uploadStart;
-            console.error(`✅ [tRPC createPreview ${requestId}] R2 uploads completed in ${uploadDuration}ms`);
-
-            // DB Write Phase
-            const dbWriteStart = Date.now();
-            const previewExpiresAt = new Date();
-            previewExpiresAt.setHours(previewExpiresAt.getHours() + 3);
-
-            const preview = await db.preview.create({
-                data: {
-                    id: previewId,
-                    fileSize: totalSize,
-                    fileCount: input.files.length,
-                    expiresAt: previewExpiresAt,
-                },
-            });
-            const dbWriteDuration = Date.now() - dbWriteStart;
-            
-            const totalDuration = Date.now() - requestStart;
-            console.error(`🎉 [tRPC createPreview ${requestId}] FINAL BREAKDOWN:`, {
-                sizeCalc: sizeCalcDuration,
-                dbCheck: dbCheckDuration, // ← THIS SHOULD BE ~4300ms
-                upload: uploadDuration,
-                dbWrite: dbWriteDuration,
-                total: totalDuration,
-                hypothesis: dbCheckDuration > 4000 ? "✅ DATABASE IS THE CULPRIT!" : "❌ Not database, investigate further"
-            });
->>>>>>> 1913a010cba3dd6b3e3141b88a81439ba9e53102
 
             return {
                 preview,
