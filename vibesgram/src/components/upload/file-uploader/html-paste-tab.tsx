@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { api } from "@/trpc/react";
+// Removed tRPC dependency - using V1 API directly for better performance
 import { useEffect, useRef, useState } from "react";
 import { createPreviewFileFromHtml, wrapHtmlContent } from "./utils";
 
@@ -22,41 +22,80 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
   const isValidHtml = htmlContent.trim().length > 0;
 
   // API mutation
-  const createPreviewMutation = api.artifact.createPreview.useMutation({
-    onMutate: () => {
+  const createPreviewMutation = {
+    isPending: false,
+    mutate: async (variables: { files: any[] }) => {
       const requestId = Math.random().toString(36).substring(7);
-      console.log(`[Client HTML ${requestId}] Starting preview creation mutation`);
-      return { requestId };
-    },
-    onSuccess: (data, variables, context) => {
-      console.log(`[Client HTML ${context?.requestId}] Preview created successfully:`, {
-        previewId: data.preview.id,
-        fileCount: data.preview.fileCount,
-        fileSize: data.preview.fileSize,
-      });
+      console.log(`[Client HTML V1 ${requestId}] Starting preview creation with V1 API`);
       
-      onPreviewCreated(data.preview.id);
+      try {
+        const startTime = Date.now();
+        
+        // For HTML paste, we can use the simpler HTML-only format
+        // Extract HTML content from the first file
+        const htmlFile = variables.files[0];
+        if (!htmlFile) {
+          throw new Error('No HTML file provided');
+        }
+        
+        const htmlContent = Buffer.from(htmlFile.content, 'base64').toString('utf-8');
+        
+        const response = await fetch('/api/v1/preview/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ html: htmlContent }), // Use direct HTML input format
+        });
+        
+        const duration = Date.now() - startTime;
+        console.log(`[Client HTML V1 ${requestId}] API call completed in ${duration}ms`);
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Failed to create preview');
+        }
+        
+        console.log(`[Client HTML V1 ${requestId}] Preview created successfully:`, {
+          previewId: data.data.previewId,
+          fileCount: data.data.fileCount,
+          fileSize: data.data.fileSize,
+          duration: `${duration}ms`,
+        });
+        
+        // Transform response to match tRPC format
+        const transformedData = {
+          preview: {
+            id: data.data.previewId,
+            fileCount: data.data.fileCount,
+            fileSize: data.data.fileSize,
+          }
+        };
+        
+        onPreviewCreated(transformedData.preview.id);
 
-      toast({
-        title: "Preview created successfully",
-        description: "Redirecting to the preview page",
-        variant: "default",
-      });
-    },
-    onError: (error, variables, context) => {
-      console.error(`[Client HTML ${context?.requestId}] Preview creation failed:`, {
-        error: error.message,
-        code: error.data?.code,
-        httpStatus: error.data?.httpStatus,
-      });
-      
-      toast({
-        title: "Failed to create preview",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });;
+        toast({
+          title: "Preview created successfully",
+          description: "Redirecting to the preview page",
+          variant: "default",
+        });
+        
+      } catch (error: any) {
+        console.error(`[Client HTML V1 ${requestId}] Preview creation failed:`, {
+          error: error.message,
+        });
+        
+        toast({
+          title: "Failed to create preview",
+          description: error.message || "Unknown error occurred",
+          variant: "destructive",
+        });
+        
+        throw error;
+      }
+    }
+  };;
 
   // Create blob URL for the iframe
   useEffect(() => {
