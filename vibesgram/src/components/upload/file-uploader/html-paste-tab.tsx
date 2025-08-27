@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { api } from "@/trpc/react";
+// Removed tRPC import - now using V1 API
 import { useEffect, useRef, useState } from "react";
 import { createPreviewFileFromHtml, wrapHtmlContent } from "./utils";
 
@@ -20,28 +20,44 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
 
   // Check if HTML contains basic structure
   const isValidHtml = htmlContent.trim().length > 0;
-  const hasHtmlStructure =
-    htmlContent.includes("<html") || htmlContent.includes("<body");
 
-  // API mutation
-  const createPreviewMutation = api.artifact.createPreview.useMutation({
-    onSuccess: (data) => {
-      onPreviewCreated(data.preview.id);
+  // V1 API state
+  const [isCreatingPreview, setIsCreatingPreview] = useState(false);
+
+  // V1 API function
+  const createPreviewWithV1 = async (previewFile: { path: string; content: string; contentType: string }) => {
+    setIsCreatingPreview(true);
+    try {
+      const response = await fetch('/api/v1/preview/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ files: [previewFile] }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json() as { success: boolean; data: { previewId: string } };
+      onPreviewCreated(data.data.previewId);
 
       toast({
         title: "Preview created successfully",
         description: "Redirecting to the preview page",
         variant: "default",
       });
-    },
-    onError: (error) => {
+    } catch (error) {
       toast({
         title: "Failed to create preview",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive",
       });
-    },
-  });
+    } finally {
+      setIsCreatingPreview(false);
+    }
+  };
 
   // Create blob URL for the iframe
   useEffect(() => {
@@ -66,7 +82,7 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
   }, [htmlContent]);
 
   // Handle submit
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
       // Validate pasted HTML
       if (!htmlContent.trim()) {
@@ -81,8 +97,8 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
       // Process HTML content
       const previewFile = createPreviewFileFromHtml(htmlContent);
 
-      // Call API to create preview
-      createPreviewMutation.mutate({ files: [previewFile] });
+      // Call V1 API to create preview
+      await createPreviewWithV1(previewFile);
     } catch (error) {
       toast({
         title: "Error processing HTML content",
@@ -143,9 +159,9 @@ export function HtmlPasteTab({ onPreviewCreated }: HtmlPasteTabProps) {
       <div className="mt-6 flex justify-end">
         <Button
           onClick={handleSubmit}
-          disabled={createPreviewMutation.isPending || !isValidHtml}
+          disabled={isCreatingPreview || !isValidHtml}
         >
-          {createPreviewMutation.isPending
+          {isCreatingPreview
             ? "Generating Preview..."
             : "Generate Preview URL"}
         </Button>

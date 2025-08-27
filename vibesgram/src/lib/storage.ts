@@ -8,7 +8,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-// Initialize S3 client for R2
+// Initialize S3 client for R2 with optimized settings
 const s3Client = new S3Client({
   region: "auto",
   endpoint: env.R2_ENDPOINT,
@@ -17,6 +17,7 @@ const s3Client = new S3Client({
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
   },
   forcePathStyle: true,
+  maxAttempts: 1,              // No retries for speed
 });
 
 export async function uploadToR2(

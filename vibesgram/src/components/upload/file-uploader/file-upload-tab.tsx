@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { MAX_ARTIFACT_FILE_TOTAL_SIZE, MAX_USER_ARTIFACTS } from "@/lib/const";
-import { api } from "@/trpc/react";
+// Removed tRPC import - now using V1 API
 import { FileIcon, InfoIcon, UploadIcon, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { createPreviewFilesFromUpload, type PreviewFile } from "./utils";
@@ -106,25 +106,43 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
     }
   };
 
-  // API mutation
-  const createPreviewMutation = api.artifact.createPreview.useMutation({
-    onSuccess: (data) => {
-      onPreviewCreated(data.preview.id);
+  // V1 API state
+  const [isCreatingPreview, setIsCreatingPreview] = useState(false);
+
+  // V1 API function
+  const createPreviewWithV1 = async (files: PreviewFile[]) => {
+    setIsCreatingPreview(true);
+    try {
+      const response = await fetch('/api/v1/preview/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ files }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json() as { success: boolean; data: { previewId: string } };
+      onPreviewCreated(data.data.previewId);
 
       toast({
         title: "Preview created successfully",
         description: "Redirecting to the preview page",
         variant: "default",
       });
-    },
-    onError: (error) => {
+    } catch (error) {
       toast({
         title: "Failed to create preview",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive",
       });
-    },
-  });
+    } finally {
+      setIsCreatingPreview(false);
+    }
+  };
 
   // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,9 +212,9 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
         return;
       }
 
-      // Call API to create preview
-      createPreviewMutation.mutate({ files: previewFiles });
-    } catch (error) {
+      // Call V1 API to create preview
+      await createPreviewWithV1(previewFiles);
+    } catch {
       toast({
         title: "Failed to create preview",
         description: "Error processing files",
@@ -353,14 +371,14 @@ export function FileUploadTab({ onPreviewCreated }: FileUploadTabProps) {
         <Button
           onClick={handleSubmit}
           disabled={
-            createPreviewMutation.isPending ||
+            isCreatingPreview ||
             previewFiles.length === 0 ||
             !hasIndexHtml ||
             !isFileSizeValid ||
             !isFileCountValid
           }
         >
-          {createPreviewMutation.isPending
+          {isCreatingPreview
             ? "Generating Preview..."
             : "Generate Preview URL"}
         </Button>

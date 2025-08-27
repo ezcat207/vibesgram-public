@@ -49,44 +49,30 @@ export const createPreview = publicProcedure
                 });
             }
 
-            // Generate a unique preview ID using cuid and check for collisions
+            // Generate unique ID and parallelize operations for performance
             const previewId = generateShortId();
-            const existing = await db.preview.findUnique({
-                where: {
-                    id: previewId,
-                },
-            });
-
-            if (existing) {
-                throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "Preview ID already exists",
-                });
-            }
-
-            // Upload each file to R2 with the new preview ID
-            const uploadPromises = input.files.map((file) => {
-                const previewPath = `${getPreviewStoragePath(previewId)}/${file.path}`;
-                // Decode base64 string to Buffer
-                const fileBuffer = Buffer.from(file.content, "base64");
-                return uploadToR2(fileBuffer, file.contentType, previewPath);
-            });
-
-            await Promise.all(uploadPromises);
-
-            // Calculate expiry time (3 hours from now)
             const previewExpiresAt = new Date();
             previewExpiresAt.setHours(previewExpiresAt.getHours() + 3);
 
-            // Create a new preview record
-            const preview = await db.preview.create({
-                data: {
-                    id: previewId,
-                    fileSize: totalSize,
-                    fileCount: input.files.length,
-                    expiresAt: previewExpiresAt,
-                },
-            });
+            // Execute R2 uploads and database operations in parallel
+            const [, preview] = await Promise.all([
+                // Upload files to R2
+                Promise.all(input.files.map((file) => {
+                    const previewPath = `${getPreviewStoragePath(previewId)}/${file.path}`;
+                    const fileBuffer = Buffer.from(file.content, "base64");
+                    return uploadToR2(fileBuffer, file.contentType, previewPath);
+                })),
+                
+                // Create database record (skip collision check for performance)
+                db.preview.create({
+                    data: {
+                        id: previewId,
+                        fileSize: totalSize,
+                        fileCount: input.files.length,
+                        expiresAt: previewExpiresAt,
+                    },
+                }),
+            ]);
 
             return {
                 preview,
