@@ -25,7 +25,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://vibesgram.com",
   },
-};
+  other: {
+    "msvalidate.01": "EF14BA988A6933B400193F58A798FF2A",
+  },
+};;
 
 export default async function RootLayout({
   children,
